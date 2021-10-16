@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Looper;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -71,7 +73,30 @@ public class XposedMain implements IXposedHookLoadPackage {
 				if(hookApplication == null) {
 					hookApplication = (Application) param.thisObject;
 				}
-				new Thread(() -> init()).start();
+				//初始化
+				new Thread(() -> {
+					//防闪退
+					try {
+						Looper.prepare();
+						init();
+					} catch(IllegalArgumentException iae) {
+						//初始化时读取不到provider
+						String eMsg = iae.getMessage();
+						if(eMsg == null) return;
+						if(eMsg.contains("Unknown authority")) {
+							String toastMessage = "清心模块加载失败，" +
+									"请检查清心模块的自启动权限是否已开启";
+							Toast.makeText(hookApplication, toastMessage,
+									Toast.LENGTH_SHORT).show();
+						} else {
+							XposedBridge.log(iae);
+						}
+					} catch(Throwable t) {
+						XposedBridge.log(t);
+					} finally {
+						Looper.loop();
+					}
+				}).start();
 			}
 		});
 	}
@@ -166,16 +191,26 @@ public class XposedMain implements IXposedHookLoadPackage {
 		//拼接类名，获取class对象
 		List<Class<?>> classes = new ArrayList<>();
 		for(String className : classNames) {
-			className = "com.bapis.bilibili.main.community.reply.v1." + className;
-			classes.add(lpparam.classLoader.loadClass(className));
+			//加载类
+			String fullClassName = "com.bapis.bilibili.main.community" +
+					".reply.v1." + className;
+			Class<?> clazz = lpparam.classLoader.loadClass(fullClassName);
+			//添加到列表
+			classes.add(clazz);
 		}
 		//从这些类中获取要hook的方法
 		List<Method> methods = new ArrayList<>();
+		//特殊的方法名（主要是一些获取置顶评论的方法，需要对这些置顶评论进行判断）
+		List<String> specialMethodNames = Arrays.asList(
+				"getAdminTop", "getReplies", "getTopReplies",
+				"getUpTop", "getVoteTop"
+		);
 		for(Class<?> aClass : classes) {
 			//列出这些类中的所有方法
 			for(Method m : aClass.getDeclaredMethods()) {
-				//将返回值类型为List的方法添加到列表中
-				if(m.getReturnType().equals(List.class)) {
+				//将返回值类型为List的方法，或特殊方法名的方法添加到列表中
+				if(m.getReturnType().equals(List.class) ||
+					specialMethodNames.contains(m.getName())) {
 					methods.add(m);
 				}
 			}

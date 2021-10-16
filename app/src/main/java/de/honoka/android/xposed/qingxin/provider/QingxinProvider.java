@@ -14,6 +14,7 @@ import java.util.List;
 import de.honoka.android.xposed.qingxin.common.Singletons;
 import de.honoka.android.xposed.qingxin.dao.BlockRuleDao;
 import de.honoka.android.xposed.qingxin.entity.BlockRule;
+import de.honoka.android.xposed.qingxin.entity.MainPreference;
 import de.honoka.android.xposed.qingxin.service.MainPreferenceService;
 
 public class QingxinProvider extends ContentProvider {
@@ -31,7 +32,13 @@ public class QingxinProvider extends ContentProvider {
 			case RequestMethod.MAIN_PREFERENCE: {
 				MainPreferenceService mainPreferenceService =
 						new MainPreferenceService(getContext());
-				data = mainPreferenceService.readPreferenceJson();
+				//如果模块主程序从未启动过，这个方法就会报告no such file
+				try {
+					data = mainPreferenceService.readPreferenceJson();
+				} catch(Throwable t) {
+					data = Singletons.gson.toJson(MainPreference
+							.getDefaultPreference());
+				}
 				break;
 			}
 			case RequestMethod.BLOCK_RULE: {

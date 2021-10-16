@@ -19,6 +19,7 @@ public class Logger {
 	public static void toastOnBlock(String log) {
 		if(XposedMain.hookApplication == null) return;
 		Boolean b = XposedMain.mainPreference.getToastOnBlock();
+		//判断开关
 		if(b != null && b.equals(true)) {
 			Toast.makeText(XposedMain.hookApplication, log,
 					Toast.LENGTH_SHORT).show();
