@@ -1,0 +1,95 @@
+package de.honoka.android.xposed.qingxin.provider;
+
+import android.content.ContentProvider;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.util.List;
+
+import de.honoka.android.xposed.qingxin.common.Singletons;
+import de.honoka.android.xposed.qingxin.dao.BlockRuleDao;
+import de.honoka.android.xposed.qingxin.entity.BlockRule;
+import de.honoka.android.xposed.qingxin.service.MainPreferenceService;
+
+public class QingxinProvider extends ContentProvider {
+
+	public static final String QINGXIN_PROVIDER_AUTHORITIES =
+			"de.honoka.android.xposed.qingxin.provider.QingxinProvider";
+
+	@Nullable
+	@Override
+	public Bundle call(@NonNull String method, @Nullable String arg,
+	                   @Nullable Bundle extras) {
+		Bundle bundle = new Bundle();
+		String data = null;
+		switch(method) {
+			case RequestMethod.MAIN_PREFERENCE: {
+				MainPreferenceService mainPreferenceService =
+						new MainPreferenceService(getContext());
+				data = mainPreferenceService.readPreferenceJson();
+				break;
+			}
+			case RequestMethod.BLOCK_RULE: {
+				BlockRuleDao blockRuleDao = new BlockRuleDao(getContext());
+				List<BlockRule> rules = blockRuleDao.getListOfRegion(arg);
+				data = Singletons.gson.toJson(rules);
+				break;
+			}
+		}
+		bundle.putString("data", data);
+		return bundle;
+	}
+
+	public interface RequestMethod {
+
+		String MAIN_PREFERENCE = "main_preference";
+
+		String BLOCK_RULE = "block_rule";
+	}
+
+	//region 无关方法
+
+	@Override
+	public boolean onCreate() {
+		return false;
+	}
+
+	@Nullable
+	@Override
+	public Cursor query(@NonNull Uri uri, @Nullable String[] projection,
+	                    @Nullable String selection, @Nullable String[] selectionArgs,
+	                    @Nullable String sortOrder) {
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public String getType(@NonNull Uri uri) {
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+		return null;
+	}
+
+	@Override
+	public int delete(@NonNull Uri uri, @Nullable String selection,
+	                  @Nullable String[] selectionArgs) {
+		return 0;
+	}
+
+	@Override
+	public int update(@NonNull Uri uri, @Nullable ContentValues values,
+	                  @Nullable String selection, @Nullable String[] selectionArgs) {
+		return 0;
+	}
+
+	//endregion
+}

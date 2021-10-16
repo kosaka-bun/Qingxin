@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="de.honoka.android.xposed.qingxin">
+
+	<application
+		android:allowBackup="true"
+		android:icon="@drawable/qingxin"
+		android:label="@string/app_name"
+		android:roundIcon="@drawable/qingxin"
+		android:supportsRtl="true"
+		android:theme="@style/AppTheme">
+		<activity android:name=".activity.AddRuleActivity" />
+		<activity android:name=".activity.MainActivity">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+		<provider
+			android:name=".provider.QingxinProvider"
+			android:authorities="de.honoka.android.xposed.qingxin.provider.QingxinProvider"
+			android:enabled="true"
+			android:exported="true" />
+		<meta-data
+			android:name="xposedmodule"
+			android:value="true" />
+		<meta-data
+			android:name="xposeddescription"
+			android:value="bilibili内容屏蔽模块" />
+		<meta-data
+			android:name="xposedminversion"
+			android:value="53" />
+	</application>
+
+</manifest>
