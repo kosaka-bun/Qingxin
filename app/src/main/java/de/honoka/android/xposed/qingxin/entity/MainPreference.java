@@ -22,10 +22,16 @@ public class MainPreference {
 	 */
 	private Boolean toastOnBlock;
 
+	/**
+	 * 调试模式（会在控制台输出很多调试信息）
+	 */
+	private Boolean testMode;
+
 	public static MainPreference getDefaultPreference() {
 		return new MainPreference()
 				.setBlockAllMainPagePublicity(false)
 				.setShowBlockLog(false)
-				.setToastOnBlock(false);
+				.setToastOnBlock(false)
+				.setTestMode(true);
 	}
 }

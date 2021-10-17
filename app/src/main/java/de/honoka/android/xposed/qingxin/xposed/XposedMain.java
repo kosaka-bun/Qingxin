@@ -26,10 +26,12 @@ import de.honoka.android.xposed.qingxin.entity.MainPreference;
 import de.honoka.android.xposed.qingxin.provider.QingxinProvider;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
+import de.honoka.android.xposed.qingxin.xposed.hook.ResponseBodyHook;
 import de.honoka.android.xposed.qingxin.xposed.model.BlockRuleCache;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.SneakyThrows;
 
@@ -146,6 +148,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 		registerUpdateReceiver();
 		//初始化所有hook
 		initCommentHook();
+		initResponseBodyHook();
 	}
 
 	private List<BlockRule> requestBlockRuleList(String region) {
@@ -167,6 +170,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				String type = intent.getStringExtra("type");
+				if(type == null) return;
 				switch(type) {
 					case Constant.UpdateType.MAIN_PREFERENCE: {
 						mainPreference = Singletons.gson.fromJson(
@@ -175,9 +179,34 @@ public class XposedMain implements IXposedHookLoadPackage {
 						Logger.testLog("配置已更新：" + mainPreference.toString());
 						break;
 					}
+					case Constant.UpdateType.BLOCK_RULE: {
+						updateBlockRuleCache(intent.getStringExtra("data"));
+						break;
+					}
 				}
 			}
 		}, intentFilter);
+	}
+
+	private void updateBlockRuleCache(String json) {
+		BlockRule blockRule = Singletons.gson.fromJson(json, BlockRule.class);
+		if(blockRule.getVideoTitle())
+			blockRuleCache.getVideoTitleList().add(blockRule);
+		if(blockRule.getVideoSubArea())
+			blockRuleCache.getVideoSubAreaList().add(blockRule);
+		if(blockRule.getVideoChannel())
+			blockRuleCache.getVideoChannelList().add(blockRule);
+		if(blockRule.getUsername())
+			blockRuleCache.getUsernameList().add(blockRule);
+		if(blockRule.getComment())
+			blockRuleCache.getCommentList().add(blockRule);
+		if(blockRule.getDanmaku())
+			blockRuleCache.getDanmakuList().add(blockRule);
+		if(blockRule.getHotSearchWord())
+			blockRuleCache.getHotSearchWordList().add(blockRule);
+		if(blockRule.getDongtai())
+			blockRuleCache.getDongtaiList().add(blockRule);
+		Logger.testLog("收到新的规则：" + blockRule.toString());
 	}
 
 	/**
@@ -221,5 +250,19 @@ public class XposedMain implements IXposedHookLoadPackage {
 		for(Method m : methods) {
 			XposedBridge.hookMethod(m, commentHook);
 		}
+	}
+
+	/**
+	 * OkHttp响应体解析方法hook
+	 */
+	@SneakyThrows
+	private void initResponseBodyHook() {
+		Class<?> responseBodyClass = lpparam.classLoader.loadClass(
+				"okhttp3.f0");
+		ResponseBodyHook responseBodyHook = new ResponseBodyHook(blockRuleCache);
+		XposedHelpers.findAndHookMethod(responseBodyClass,
+				"A", responseBodyHook);
+		XposedHelpers.findAndHookMethod(responseBodyClass,
+				"c", responseBodyHook);
 	}
 }

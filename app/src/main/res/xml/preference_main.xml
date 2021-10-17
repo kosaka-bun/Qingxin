@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<PreferenceCategory
@@ -20,6 +21,12 @@
 			android:title="拦截时发出气泡信息"
 			android:summary="显示拦截条数等信息"
 			android:defaultValue="false" />
+
+		<CheckBoxPreference
+			android:key="test_mode"
+			android:title="调试模式"
+			android:summary="在框架控制台输出调试信息"
+			android:defaultValue="true" />
 	</PreferenceCategory>
 
 	<PreferenceCategory

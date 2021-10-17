@@ -70,21 +70,28 @@ public class CommentHook extends XC_MethodHook {
 	}
 
 	/**
-	 * 判断replyInfo是否应当被拦截
+	 * 判断replyInfo是否应当被拦截（对blockCache中方法的再封装，添加日志功能）
 	 */
 	private boolean isBlockReplyInfo(Object reply) {
-		//content
+		//根据内容判断是否应当拦截
 		Object content = XposedHelpers.callMethod(reply,
 				"getContent");
-		//message
 		String message = XposedHelpers.callMethod(content,
 				"getMessage").toString();
-		//根据内容判断是否应当拦截
 		if(blockRuleCache.isBlockCommentMessage(message)) {
 			Logger.blockLog("评论拦截：" + message);
 			return true;
 		}
-		//TODO 根据用户名判断是否应当拦截
+		//根据用户名判断是否应当拦截
+		Object member = XposedHelpers.callMethod(reply,
+				"getMember");
+		String username = XposedHelpers.callMethod(member,
+				"getName").toString();
+		if(blockRuleCache.isBlockUsername(username)) {
+			Logger.blockLog("评论拦截（按用户名）：" + message +
+					"\n用户名：" + username);
+			return true;
+		}
 		return false;
 	}
 }

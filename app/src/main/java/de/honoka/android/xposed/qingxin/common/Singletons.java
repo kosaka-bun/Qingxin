@@ -10,4 +10,8 @@ public class Singletons {
 			.serializeNulls()
 			.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
 			.create();
+
+	public static final Gson prettyGson = new GsonBuilder()
+			.setPrettyPrinting()
+			.create();
 }

@@ -1,5 +1,6 @@
 package de.honoka.android.xposed.qingxin.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
@@ -13,6 +14,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import de.honoka.android.xposed.qingxin.R;
+import de.honoka.android.xposed.qingxin.common.Constant;
+import de.honoka.android.xposed.qingxin.common.Singletons;
 import de.honoka.android.xposed.qingxin.dao.BlockRuleDao;
 import de.honoka.android.xposed.qingxin.entity.BlockRule;
 import de.honoka.android.xposed.qingxin.util.AndroidUtils;
@@ -113,6 +116,8 @@ public class AddRuleActivity extends AppCompatActivity {
 			blockRuleDao.getDao().create(blockRule);
 			Toast.makeText(this, "保存成功",
 					Toast.LENGTH_LONG).show();
+			//将保存成功的数据广播出去
+			sendAddRuleBroadcast(blockRule);
 			//保存成功后关闭activity
 			finish();
 		} catch(Throwable t) {
@@ -122,4 +127,12 @@ public class AddRuleActivity extends AppCompatActivity {
 		}
 		//endregion
 	};
+
+	private void sendAddRuleBroadcast(BlockRule blockRule) {
+		Intent intent = new Intent();
+		intent.setAction(Constant.UPDATE_BROADCAST_ACTION);
+		intent.putExtra("type", Constant.UpdateType.BLOCK_RULE);
+		intent.putExtra("data", Singletons.gson.toJson(blockRule));
+		sendBroadcast(intent);
+	}
 }
