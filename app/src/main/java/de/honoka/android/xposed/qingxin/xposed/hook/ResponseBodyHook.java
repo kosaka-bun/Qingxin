@@ -82,7 +82,7 @@ public class ResponseBodyHook extends XC_MethodHook {
 	/**
 	 * 首页推荐过滤器
 	 */
-	private Function<String, String> mainPageFilter = json -> {
+	private final Function<String, String> mainPageFilter = json -> {
 		//根据字符串提取出来的主对象，所有修改操作都基于它来完成
 		JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
 		JsonArray items = jo.getAsJsonObject("data")

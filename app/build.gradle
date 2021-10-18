@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "de.honoka.android.xposed.qingxin"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 29
         versionCode 1
         versionName "1.0.0-snapshot-1"
