@@ -6,26 +6,20 @@ import java.util.Iterator;
 import java.util.List;
 
 import de.honoka.android.xposed.qingxin.util.Logger;
-import de.honoka.android.xposed.qingxin.xposed.model.BlockRuleCache;
-import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 import lombok.SneakyThrows;
+
+import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
 
 /**
  * 评论拦截逻辑
  */
 @SuppressWarnings("unchecked")
-public class CommentHook extends XC_MethodHook {
-
-	private final BlockRuleCache blockRuleCache;
-
-	public CommentHook(BlockRuleCache blockRuleCache) {
-		this.blockRuleCache = blockRuleCache;
-	}
+public class CommentHook extends LateInitHook {
 
 	@SneakyThrows
 	@Override
-	protected void afterHookedMethod(MethodHookParam param) {
+	public void after(MethodHookParam param) {
 		Logger.testLog("Hook到方法：" + param.method.toString());
 		//方法返回值可能是List或ReplyInfo
 		if(((Method) param.method).getReturnType().equals(List.class)) {

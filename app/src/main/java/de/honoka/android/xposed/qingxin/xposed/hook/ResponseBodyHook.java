@@ -15,24 +15,18 @@ import java.util.function.Function;
 import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
-import de.honoka.android.xposed.qingxin.xposed.model.BlockRuleCache;
-import de.robv.android.xposed.XC_MethodHook;
 import lombok.SneakyThrows;
+
+import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
 
 /**
  * OkHttp响应体解析方法hook
  */
-public class ResponseBodyHook extends XC_MethodHook {
-
-	private BlockRuleCache blockRuleCache;
-
-	public ResponseBodyHook(BlockRuleCache blockRuleCache) {
-		this.blockRuleCache = blockRuleCache;
-	}
+public class ResponseBodyHook extends LateInitHook {
 
 	@SneakyThrows
 	@Override
-	protected void afterHookedMethod(MethodHookParam param) {
+	public void after(MethodHookParam param) {
 		Object response = param.getResult();
 		String str = "";
 		if(response instanceof String) {

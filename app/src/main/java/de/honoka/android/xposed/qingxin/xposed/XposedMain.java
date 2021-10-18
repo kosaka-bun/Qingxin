@@ -7,6 +7,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -49,9 +50,12 @@ public class XposedMain implements IXposedHookLoadPackage {
 
 	public static MainPreference mainPreference;
 
-	private BlockRuleCache blockRuleCache;
+	public static BlockRuleCache blockRuleCache;
 
-	private final Type blockRuleListType = new TypeToken<List<BlockRule>>() {}.getType();
+	private final Type blockRuleListType =
+			new TypeToken<List<BlockRule>>() {}.getType();
+
+	private volatile static boolean inited = false;
 
 	@SneakyThrows
 	@Override
@@ -61,7 +65,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 		if(!lpparam.packageName.equals(packageName)) return;
 		//初始化
 		this.lpparam = lpparam;
-		//hook获取应用的application
+		//region hook获取应用的application，执行初始化
 		Method attach = Application.class.getDeclaredMethod(
 				"attach", Context.class);
 		unhook = XposedBridge.hookMethod(attach, new XC_MethodHook() {
@@ -76,11 +80,14 @@ public class XposedMain implements IXposedHookLoadPackage {
 					hookApplication = (Application) param.thisObject;
 				}
 				//初始化
+				if(inited) return;
 				//不在新线程中进行初始化可能会使APP闪退
-				new Thread(() -> {
+				Runnable initAction = () -> {
 					try {
 						init();
+						inited = true;
 						if(mainPreference.getTestMode()) {
+							Logger.writeToFile("清心模块加载成功");
 							Logger.toast("清心模块加载成功", Toast.LENGTH_SHORT);
 						}
 					} catch(IllegalArgumentException iae) {
@@ -102,13 +109,27 @@ public class XposedMain implements IXposedHookLoadPackage {
 						//其他问题
 						reportProblem(t);
 					}
-				}).start();
+				};
+				//判断当前系统版本是否低于或等于Android 7.1
+				//若是，则在当前线程中进行初始化（可能会闪退）
+				if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
+					//Build.VERSION_CODES.N_MR1 = 25 (Android 7.1)
+					initAction.run();
+				} else {
+					new Thread(initAction).start();
+				}
 			}
 		});
+		//endregion
+		/* 初始化所有hook
+		 * hook的初始化理论上要先于配置与规则的初始化
+		 * 若被hook的方法在配置初始化完成之前被调用，则LateInitHook类
+		 * 会根据init的值忽略掉本次调用，不执行hook逻辑 */
+		initAllHook();
 	}
 
 	/**
-	 * 在hook到application后执行
+	 * 在hook到application后执行，加载基本配置和规则数据
 	 */
 	private void init() {
 		contentResolver = hookApplication.getContentResolver();
@@ -150,9 +171,10 @@ public class XposedMain implements IXposedHookLoadPackage {
 		Logger.testLog(blockRuleCache.toString());
 		//注册更新receiver
 		registerUpdateReceiver();
-		//初始化所有hook
-		initCommentHook();
-		initResponseBodyHook();
+	}
+
+	public static boolean isInited() {
+		return inited;
 	}
 
 	/**
@@ -223,6 +245,11 @@ public class XposedMain implements IXposedHookLoadPackage {
 		Logger.testLog("收到新的规则：" + blockRule.toString());
 	}
 
+	private void initAllHook() {
+		initCommentHook();
+		initResponseBodyHook();
+	}
+
 	/**
 	 * 评论拦截初始化
 	 */
@@ -259,10 +286,10 @@ public class XposedMain implements IXposedHookLoadPackage {
 			}
 		}
 		//初始化拦截逻辑
-		CommentHook commentHook = new CommentHook(blockRuleCache);
+		CommentHook methodHook = new CommentHook();
 		//为每一个要hook的方法绑定逻辑
 		for(Method m : methods) {
-			XposedBridge.hookMethod(m, commentHook);
+			XposedBridge.hookMethod(m, methodHook);
 		}
 	}
 
@@ -273,10 +300,10 @@ public class XposedMain implements IXposedHookLoadPackage {
 	private void initResponseBodyHook() {
 		Class<?> responseBodyClass = lpparam.classLoader.loadClass(
 				"okhttp3.f0");
-		ResponseBodyHook responseBodyHook = new ResponseBodyHook(blockRuleCache);
+		ResponseBodyHook methodHook = new ResponseBodyHook();
 		XposedHelpers.findAndHookMethod(responseBodyClass,
-				"A", responseBodyHook);
+				"A", methodHook);
 		XposedHelpers.findAndHookMethod(responseBodyClass,
-				"c", responseBodyHook);
+				"c", methodHook);
 	}
 }
