@@ -47,8 +47,10 @@ public class Logger {
 		} catch(RuntimeException re) {
 			String msg = re.getMessage();
 			//如果是当前线程不能够Toast
-			if(msg != null && msg.contains("Can't toast")) {
-				toastOnNewThread(log);
+			if(msg != null) {
+				if(msg.contains("Can't toast") || msg.contains("Can't create handler")) {
+					toastOnNewThread(log);
+				}
 			} else {
 				throw re;
 			}
