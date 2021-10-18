@@ -76,10 +76,6 @@ public class XposedMain implements IXposedHookLoadPackage {
 					hookApplication = (Application) param.thisObject;
 				}
 				//初始化
-				if(mainPreference.getTestMode()) {
-					//在低版本的android下，新线程中的Toast可能不生效，此Toast也用作判断Toast是否能显示
-					Logger.toast("加载清心模块……", Toast.LENGTH_SHORT);
-				}
 				//不在新线程中进行初始化可能会使APP闪退
 				new Thread(() -> {
 					try {
