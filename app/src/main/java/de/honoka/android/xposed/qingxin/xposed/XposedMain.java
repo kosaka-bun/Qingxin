@@ -75,31 +75,38 @@ public class XposedMain implements IXposedHookLoadPackage {
 				if(hookApplication == null) {
 					hookApplication = (Application) param.thisObject;
 				}
-				//初始化，防闪退
-				try {
-					init();
-					if(mainPreference.getTestMode()) {
-						Logger.toast("清心模块加载成功", Toast.LENGTH_SHORT);
-					}
-				} catch(IllegalArgumentException iae) {
-					String eMsg = iae.getMessage();
-					if(eMsg == null) return;
-					//初始化时读取不到provider
-					if(eMsg.contains("Unknown authority") ||
-							eMsg.contains("Unknown URI")) {
-						XposedBridge.log(iae);
-						Logger.writeToFile(ExceptionUtils.transfer(iae));
-						String toastMessage = "清心模块加载失败，" +
-								"请检查清心模块的自启动权限是否已开启";
-						Logger.toast(toastMessage, Toast.LENGTH_LONG);
-					} else {
-						//其他问题
-						reportProblem(iae);
-					}
-				} catch(Throwable t) {
-					//其他问题
-					reportProblem(t);
+				//初始化
+				if(mainPreference.getTestMode()) {
+					//在低版本的android下，新线程中的Toast可能不生效，此Toast也用作判断Toast是否能显示
+					Logger.toast("加载清心模块……", Toast.LENGTH_SHORT);
 				}
+				//防闪退
+				new Thread(() -> {
+					try {
+						init();
+						if(mainPreference.getTestMode()) {
+							Logger.toast("清心模块加载成功", Toast.LENGTH_SHORT);
+						}
+					} catch(IllegalArgumentException iae) {
+						String eMsg = iae.getMessage();
+						if(eMsg == null) return;
+						//初始化时读取不到provider
+						if(eMsg.contains("Unknown authority") ||
+								eMsg.contains("Unknown URI")) {
+							XposedBridge.log(iae);
+							Logger.writeToFile(ExceptionUtils.transfer(iae));
+							String toastMessage = "清心模块加载失败，" +
+									"请检查清心模块的自启动权限是否已开启";
+							Logger.toast(toastMessage, Toast.LENGTH_LONG);
+						} else {
+							//其他问题
+							reportProblem(iae);
+						}
+					} catch(Throwable t) {
+						//其他问题
+						reportProblem(t);
+					}
+				}).start();
 			}
 		});
 	}
