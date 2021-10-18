@@ -75,30 +75,31 @@ public class XposedMain implements IXposedHookLoadPackage {
 				if(hookApplication == null) {
 					hookApplication = (Application) param.thisObject;
 				}
-				//初始化
-				new Thread(() -> {
-					//防闪退
-					try {
-						init();
+				//初始化，防闪退
+				try {
+					init();
+					if(mainPreference.getTestMode()) {
 						Logger.toast("清心模块加载成功", Toast.LENGTH_SHORT);
-					} catch(IllegalArgumentException iae) {
-						String eMsg = iae.getMessage();
-						if(eMsg == null) return;
-						//初始化时读取不到provider
-						if(eMsg.contains("Unknown authority") ||
-						   eMsg.contains("Unknown URI")) {
-							String toastMessage = "清心模块加载失败，" +
-									"请检查清心模块的自启动权限是否已开启";
-							Logger.toast(toastMessage, Toast.LENGTH_LONG);
-						} else {
-							//其他问题
-							reportProblem(iae);
-						}
-					} catch(Throwable t) {
-						//其他问题
-						reportProblem(t);
 					}
-				}).start();
+				} catch(IllegalArgumentException iae) {
+					String eMsg = iae.getMessage();
+					if(eMsg == null) return;
+					//初始化时读取不到provider
+					if(eMsg.contains("Unknown authority") ||
+							eMsg.contains("Unknown URI")) {
+						XposedBridge.log(iae);
+						Logger.writeToFile(ExceptionUtils.transfer(iae));
+						String toastMessage = "清心模块加载失败，" +
+								"请检查清心模块的自启动权限是否已开启";
+						Logger.toast(toastMessage, Toast.LENGTH_LONG);
+					} else {
+						//其他问题
+						reportProblem(iae);
+					}
+				} catch(Throwable t) {
+					//其他问题
+					reportProblem(t);
+				}
 			}
 		});
 	}

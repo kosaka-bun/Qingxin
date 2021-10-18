@@ -1,7 +1,6 @@
 package de.honoka.android.xposed.qingxin.util;
 
 import android.content.Context;
-import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
@@ -49,12 +48,7 @@ public class Logger {
 			String msg = re.getMessage();
 			//如果是当前线程不能够Toast
 			if(msg != null && msg.contains("Can't toast")) {
-				//在主线程的消息队列中Toast
-				Handler handler = new Handler(Looper.getMainLooper());
-				handler.post(() -> {
-					Toast.makeText(XposedMain.hookApplication, log,
-							length).show();
-				});
+				toastOnNewThread(log);
 			} else {
 				throw re;
 			}
@@ -69,5 +63,39 @@ public class Logger {
 		} catch(Throwable t) {
 			//ignore
 		}
+	}
+
+	/**
+	 * 在新的线程中调用Looper.prepare来进行toast，不阻塞主线程
+	 */
+	public static void toastOnNewThread(String log) {
+		//toast线程（可能会阻塞）
+		class ToastThread extends Thread {
+
+			public Looper looper;
+
+			@Override
+			public void run() {
+				Looper.prepare();
+				Toast.makeText(XposedMain.hookApplication, log,
+						Toast.LENGTH_SHORT).show();
+				looper = Looper.myLooper();
+				Looper.loop();
+			}
+		}
+		ToastThread toastThread = new ToastThread();
+		//监听toast线程的线程
+		new Thread(() -> {
+			try {
+				toastThread.start();
+				toastThread.join(100);
+				if(toastThread.isAlive()) {
+					toastThread.looper.quit();
+					toastThread.interrupt();
+				}
+			} catch(Throwable t) {
+				//ignore
+			}
+		}).start();
 	}
 }
