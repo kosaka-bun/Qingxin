@@ -13,6 +13,11 @@ public class MainPreference {
 	private Boolean blockAllMainPagePublicity;
 
 	/**
+	 * 屏蔽所有热搜
+	 */
+	private Boolean blockAllHotSearchWords;
+
+	/**
 	 * 是否在框架控制台输出拦截日志
 	 */
 	private Boolean showBlockLog;
@@ -30,6 +35,7 @@ public class MainPreference {
 	public static MainPreference getDefaultPreference() {
 		return new MainPreference()
 				.setBlockAllMainPagePublicity(false)
+				.setBlockAllHotSearchWords(false)
 				.setShowBlockLog(false)
 				.setToastOnBlock(false)
 				.setTestMode(true);

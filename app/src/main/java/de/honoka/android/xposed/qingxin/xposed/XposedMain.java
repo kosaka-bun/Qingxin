@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Looper;
 import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
@@ -24,6 +23,7 @@ import de.honoka.android.xposed.qingxin.common.Singletons;
 import de.honoka.android.xposed.qingxin.entity.BlockRule;
 import de.honoka.android.xposed.qingxin.entity.MainPreference;
 import de.honoka.android.xposed.qingxin.provider.QingxinProvider;
+import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.ResponseBodyHook;
@@ -51,7 +51,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 
 	private BlockRuleCache blockRuleCache;
 
-	private Type blockRuleListType = new TypeToken<List<BlockRule>>() {}.getType();
+	private final Type blockRuleListType = new TypeToken<List<BlockRule>>() {}.getType();
 
 	@SneakyThrows
 	@Override
@@ -79,24 +79,24 @@ public class XposedMain implements IXposedHookLoadPackage {
 				new Thread(() -> {
 					//防闪退
 					try {
-						Looper.prepare();
 						init();
+						Logger.toast("清心模块加载成功", Toast.LENGTH_SHORT);
 					} catch(IllegalArgumentException iae) {
-						//初始化时读取不到provider
 						String eMsg = iae.getMessage();
 						if(eMsg == null) return;
-						if(eMsg.contains("Unknown authority")) {
+						//初始化时读取不到provider
+						if(eMsg.contains("Unknown authority") ||
+						   eMsg.contains("Unknown URI")) {
 							String toastMessage = "清心模块加载失败，" +
 									"请检查清心模块的自启动权限是否已开启";
-							Toast.makeText(hookApplication, toastMessage,
-									Toast.LENGTH_SHORT).show();
+							Logger.toast(toastMessage, Toast.LENGTH_LONG);
 						} else {
-							XposedBridge.log(iae);
+							//其他问题
+							reportProblem(iae);
 						}
 					} catch(Throwable t) {
-						XposedBridge.log(t);
-					} finally {
-						Looper.loop();
+						//其他问题
+						reportProblem(t);
 					}
 				}).start();
 			}
@@ -110,7 +110,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 		contentResolver = hookApplication.getContentResolver();
 		//读取MainPreference
 		Bundle mainPreferenceBundle = contentResolver.call(
-				QingxinProvider.QINGXIN_PROVIDER_AUTHORITIES,
+				QingxinProvider.QINGXIN_PROVIDER_URI,
 				QingxinProvider.RequestMethod.MAIN_PREFERENCE,
 				null, null);
 		mainPreference = Singletons.gson.fromJson(mainPreferenceBundle
@@ -151,9 +151,19 @@ public class XposedMain implements IXposedHookLoadPackage {
 		initResponseBodyHook();
 	}
 
+	/**
+	 * 用Toast、日志和文件三种方式报告问题
+	 */
+	private void reportProblem(Throwable t) {
+		XposedBridge.log(t);
+		Logger.writeToFile(ExceptionUtils.transfer(t));
+		String toastMessage = "清心模块加载失败，请到bilibili数据目录下查看日志文件";
+		Logger.toast(toastMessage, Toast.LENGTH_LONG);
+	}
+
 	private List<BlockRule> requestBlockRuleList(String region) {
 		String ruleListJson = contentResolver.call(
-				QingxinProvider.QINGXIN_PROVIDER_AUTHORITIES,
+				QingxinProvider.QINGXIN_PROVIDER_URI,
 				QingxinProvider.RequestMethod.BLOCK_RULE,
 				region, null).getString("data");
 		return Singletons.gson.fromJson(ruleListJson, blockRuleListType);

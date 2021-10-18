@@ -11,6 +11,12 @@
 			android:defaultValue="false" />
 
 		<CheckBoxPreference
+			android:key="block_all_hot_search_words"
+			android:title="屏蔽所有热搜"
+			android:summary="热搜列表和搜索框中的内容"
+			android:defaultValue="false" />
+
+		<CheckBoxPreference
 			android:key="show_block_log"
 			android:title="输出拦截日志"
 			android:summary="在框架控制台输出拦截日志"

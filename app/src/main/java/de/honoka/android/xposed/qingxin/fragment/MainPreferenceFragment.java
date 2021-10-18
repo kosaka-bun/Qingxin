@@ -126,7 +126,7 @@ public class MainPreferenceFragment extends PreferenceFragment {
 	/**
 	 * 删除项目点击监听器
 	 */
-	private Preference.OnPreferenceClickListener
+	private final Preference.OnPreferenceClickListener
 			removeRuleOptionListener = preference -> {
 		Context context = getContext();
 		//初始化一个编辑框

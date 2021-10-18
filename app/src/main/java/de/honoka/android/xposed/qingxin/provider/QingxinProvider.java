@@ -22,6 +22,9 @@ public class QingxinProvider extends ContentProvider {
 	public static final String QINGXIN_PROVIDER_AUTHORITIES =
 			"de.honoka.android.xposed.qingxin.provider.QingxinProvider";
 
+	public static final Uri QINGXIN_PROVIDER_URI =
+			Uri.parse("content://" + QINGXIN_PROVIDER_AUTHORITIES);
+
 	@Nullable
 	@Override
 	public Bundle call(@NonNull String method, @Nullable String arg,
