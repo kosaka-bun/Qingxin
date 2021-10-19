@@ -24,4 +24,22 @@ public class CodeUtils {
 	public static DateFormat getSimpleDateFormat() {
 		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	}
+
+	/**
+	 * 将多行字符串转为单行，并将字符串限制在限制字符数内
+	 */
+	public static String singleLine(String str, Integer limit) {
+		String singleLine = str.replace("\r", "")
+				.replace("\n", " ");
+		if(limit != null) {
+			if(singleLine.length() > limit) {
+				singleLine = singleLine.substring(0, limit) + "...";
+			}
+		}
+		return singleLine;
+	}
+
+	public static String singleLine(String str) {
+		return singleLine(str, null);
+	}
 }

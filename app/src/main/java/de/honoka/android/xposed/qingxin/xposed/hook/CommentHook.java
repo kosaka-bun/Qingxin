@@ -1,21 +1,27 @@
 package de.honoka.android.xposed.qingxin.xposed.hook;
 
+import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.robv.android.xposed.XposedHelpers;
 import lombok.SneakyThrows;
-
-import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
 
 /**
  * 评论拦截逻辑
  */
 @SuppressWarnings("unchecked")
 public class CommentHook extends LateInitHook {
+
+	/**
+	 * 显示拦截日志时，最多只显示被拦截的评论的多少个字符
+	 */
+	private static final int BLOCK_LOG_LENGTH_LIMIT = 50;
 
 	@SneakyThrows
 	@Override
@@ -35,7 +41,7 @@ public class CommentHook extends LateInitHook {
 				//replyInfo
 				Object reply = iterator.next();
 				//判断是否应当拦截
-				if(isBlockReplyInfo(reply)) {
+				if(checkReplyInfo(reply)) {
 					//移除这条评论
 					iterator.remove();
 					blockCount++;
@@ -53,7 +59,7 @@ public class CommentHook extends LateInitHook {
 			//返回值是ReplyInfo
 			Object reply = param.getResult();
 			//判断是否应当拦截
-			if(isBlockReplyInfo(reply)) {
+			if(checkReplyInfo(reply)) {
 				Logger.toastOnBlock("拦截了1条评论");
 				//修改返回值
 				param.setResult(XposedHelpers.callStaticMethod(reply.getClass(),
@@ -66,14 +72,15 @@ public class CommentHook extends LateInitHook {
 	/**
 	 * 判断replyInfo是否应当被拦截（对blockCache中方法的再封装，添加日志功能）
 	 */
-	private boolean isBlockReplyInfo(Object reply) {
+	private boolean checkReplyInfo(Object reply) {
 		//根据内容判断是否应当拦截
 		Object content = XposedHelpers.callMethod(reply,
 				"getContent");
 		String message = XposedHelpers.callMethod(content,
 				"getMessage").toString();
 		if(blockRuleCache.isBlockCommentMessage(message)) {
-			Logger.blockLog("评论拦截：" + message);
+			Logger.blockLog("评论拦截：" + CodeUtils.singleLine(
+					message, BLOCK_LOG_LENGTH_LIMIT));
 			return true;
 		}
 		//根据用户名判断是否应当拦截
@@ -82,7 +89,8 @@ public class CommentHook extends LateInitHook {
 		String username = XposedHelpers.callMethod(member,
 				"getName").toString();
 		if(blockRuleCache.isBlockUsername(username)) {
-			Logger.blockLog("评论拦截（按用户名）：" + message +
+			Logger.blockLog("评论拦截（按用户名）：" +
+					CodeUtils.singleLine(message, BLOCK_LOG_LENGTH_LIMIT) +
 					"\n用户名：" + username);
 			return true;
 		}
