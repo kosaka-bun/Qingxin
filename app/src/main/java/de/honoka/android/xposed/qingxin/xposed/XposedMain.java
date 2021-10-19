@@ -87,7 +87,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 						init();
 						inited = true;
 						if(mainPreference.getTestMode()) {
-							Logger.writeToFile("清心模块加载成功");
+							Logger.testLog("清心模块加载成功");
 							Logger.toast("清心模块加载成功", Toast.LENGTH_SHORT);
 						}
 					} catch(IllegalArgumentException iae) {
@@ -96,18 +96,17 @@ public class XposedMain implements IXposedHookLoadPackage {
 						//初始化时读取不到provider
 						if(eMsg.contains("Unknown authority") ||
 								eMsg.contains("Unknown URI")) {
-							XposedBridge.log(iae);
-							Logger.writeToFile(ExceptionUtils.transfer(iae));
-							String toastMessage = "清心模块加载失败，" +
-									"请检查清心模块的自启动权限是否已开启";
-							Logger.toast(toastMessage, Toast.LENGTH_LONG);
+							reportProblem(Constant.ErrorMessage
+									.INIT_NO_AUTO_BOOT_PERMISSION, iae);
 						} else {
 							//其他问题
-							reportProblem(iae);
+							reportProblem(Constant.ErrorMessage
+									.INIT_UNKNOWN_ERROR, iae);
 						}
 					} catch(Throwable t) {
 						//其他问题
-						reportProblem(t);
+						reportProblem(Constant.ErrorMessage
+								.INIT_UNKNOWN_ERROR, t);
 					}
 				};
 				//判断当前系统版本是否低于或等于Android 7.1
@@ -180,10 +179,8 @@ public class XposedMain implements IXposedHookLoadPackage {
 	/**
 	 * 用Toast、日志和文件三种方式报告问题
 	 */
-	private void reportProblem(Throwable t) {
-		XposedBridge.log(t);
-		Logger.writeToFile(ExceptionUtils.transfer(t));
-		String toastMessage = "清心模块加载失败，请到bilibili数据目录下查看日志文件";
+	private void reportProblem(String toastMessage, Throwable t) {
+		Logger.testLogForce(ExceptionUtils.transfer(t));
 		Logger.toast(toastMessage, Toast.LENGTH_LONG);
 	}
 

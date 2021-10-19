@@ -14,4 +14,13 @@ public interface Constant {
 
 		String BLOCK_RULE = "block_rule";
 	}
+
+	interface ErrorMessage {
+
+		String INIT_NO_AUTO_BOOT_PERMISSION =
+				"清心模块加载失败，请检查清心模块的自启动权限是否已开启";
+
+		String INIT_UNKNOWN_ERROR =
+				"清心模块加载失败，请到bilibili数据目录下查看日志文件";
+	}
 }

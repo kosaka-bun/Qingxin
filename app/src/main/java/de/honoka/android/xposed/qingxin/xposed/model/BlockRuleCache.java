@@ -12,6 +12,9 @@ import de.honoka.android.xposed.qingxin.xposed.hook.ResponseBodyHook;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+/**
+ * Xposed模块加载后会从主程序中读取所有作用域的规则，存放在此对象的每一个List中
+ */
 @Data
 @Accessors(chain = true)
 public class BlockRuleCache {
