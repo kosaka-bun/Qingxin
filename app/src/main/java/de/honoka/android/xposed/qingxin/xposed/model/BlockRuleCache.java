@@ -8,7 +8,7 @@ import java.util.List;
 
 import de.honoka.android.xposed.qingxin.entity.BlockRule;
 import de.honoka.android.xposed.qingxin.util.PatternUtils;
-import de.honoka.android.xposed.qingxin.xposed.hook.ResponseBodyHook;
+import de.honoka.android.xposed.qingxin.xposed.filter.MainPageFilter;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -121,7 +121,7 @@ public class BlockRuleCache {
 			//其他项目
 			default: {
 				//按项目标题判断
-				String title = ResponseBodyHook.getMainPageItemTitle(item);
+				String title = MainPageFilter.getMainPageItemTitle(item);
 				if(isMatchRuleList(title, videoTitleList)) return true;
 				break;
 			}
@@ -134,7 +134,7 @@ public class BlockRuleCache {
 	 */
 	public boolean isBlockBannerItem(JsonObject bannerItem) {
 		//按标题判断
-		String title = ResponseBodyHook.getBannerItemTitle(bannerItem);
+		String title = MainPageFilter.getBannerItemTitle(bannerItem);
 		if(isMatchRuleList(title, videoTitleList)) return true;
 		return false;
 	}

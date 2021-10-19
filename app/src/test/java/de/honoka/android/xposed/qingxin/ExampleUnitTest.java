@@ -1,7 +1,5 @@
 package de.honoka.android.xposed.qingxin;
 
-import org.junit.Test;
-
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
@@ -9,7 +7,7 @@ import org.junit.Test;
  */
 public class ExampleUnitTest {
 
-	@Test
+	//@Test
 	public void test1() {
 		Thread thread = new Thread(() -> {
 			for(; ; ) {

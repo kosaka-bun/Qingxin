@@ -18,6 +18,11 @@ public class MainPreference {
 	private Boolean blockAllHotSearchWords;
 
 	/**
+	 * 还原所有竖屏视频
+	 */
+	private Boolean convertAllVerticalAv;
+
+	/**
 	 * 是否在框架控制台输出拦截日志
 	 */
 	private Boolean showBlockLog;
@@ -36,6 +41,7 @@ public class MainPreference {
 		return new MainPreference()
 				.setBlockAllMainPagePublicity(false)
 				.setBlockAllHotSearchWords(false)
+				.setConvertAllVerticalAv(false)
 				.setShowBlockLog(false)
 				.setToastOnBlock(false)
 				.setTestMode(true);

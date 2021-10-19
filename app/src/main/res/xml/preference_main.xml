@@ -17,6 +17,16 @@
 			android:defaultValue="false" />
 
 		<CheckBoxPreference
+			android:key="convert_all_vertical_av"
+			android:title="还原所有竖屏视频"
+			android:summary="将抖音风格界面的竖屏视频还原成bilibili风格"
+			android:defaultValue="false" />
+	</PreferenceCategory>
+
+	<PreferenceCategory
+		android:title="日志与提示">
+
+		<CheckBoxPreference
 			android:key="show_block_log"
 			android:title="输出拦截日志"
 			android:summary="在框架控制台输出拦截日志"
@@ -31,7 +41,7 @@
 		<CheckBoxPreference
 			android:key="test_mode"
 			android:title="调试模式"
-			android:summary="在框架控制台输出调试信息"
+			android:summary="在框架控制台和文件中输出调试信息"
 			android:defaultValue="true" />
 	</PreferenceCategory>
 
