@@ -9,8 +9,8 @@ android {
         minSdkVersion 24
         targetSdkVersion 29
         //更改版本
-        versionCode 2
-        versionName "1.0.0-snapshot-2"
+        versionCode 3
+        versionName "1.0.0-snapshot-3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
