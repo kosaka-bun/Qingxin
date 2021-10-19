@@ -109,8 +109,8 @@ public class Logger {
 	private static synchronized void writeToFile(String log) {
 		log = CodeUtils.getSimpleDateFormat().format(new Date()) + "\n" +
 				log + "\n\n\n";
-		File logFile = new File(FileUtils.getDiskCacheDir(
-				XposedMain.hookApplication) + File.separator + LOG_FILE_NAME);
+		File logFile = new File(XposedMain.hookApplication
+				.getCacheDir().getPath() + File.separator + LOG_FILE_NAME);
 		FileUtils.checkFiles(logFile);
 		try(FileOutputStream fileOutputStream = new FileOutputStream(
 				logFile, true)) {

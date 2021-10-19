@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
@@ -24,6 +26,7 @@ import de.honoka.android.xposed.qingxin.common.Singletons;
 import de.honoka.android.xposed.qingxin.entity.BlockRule;
 import de.honoka.android.xposed.qingxin.entity.MainPreference;
 import de.honoka.android.xposed.qingxin.provider.QingxinProvider;
+import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
@@ -40,21 +43,47 @@ import lombok.SneakyThrows;
 @SuppressWarnings("JavaReflectionMemberAccess")
 public class XposedMain implements IXposedHookLoadPackage {
 
+	/**
+	 * 加载包后获得的加载参数（包含如包名、应用的类加载器等）
+	 */
 	private XC_LoadPackage.LoadPackageParam lpparam;
 
+	/**
+	 * 被hook应用的application对象
+	 */
 	public static Application hookApplication;
 
+	/**
+	 * 被hook应用的内容解析器，用于获取主程序的配置和规则数据
+	 */
 	private ContentResolver contentResolver;
 
-	private XC_MethodHook.Unhook unhook;
+	/**
+	 * 对Application类的attach方法进行hook的相关信息，用于在得到
+	 * Application之后取消对attach方法的hook
+	 */
+	private XC_MethodHook.Unhook applicationUnhook;
 
+	/**
+	 * 模块基本配置
+	 */
 	public static MainPreference mainPreference;
 
+	/**
+	 * 各作用域拦截规则列表，及各作用域的拦截逻辑
+	 */
 	public static BlockRuleCache blockRuleCache;
 
+	/**
+	 * 用来表示List<BlockRule>类型的对象，用于解析BlockRule的json数组
+	 * 到List
+	 */
 	private final Type blockRuleListType =
 			new TypeToken<List<BlockRule>>() {}.getType();
 
+	/**
+	 * 模块是否已初始化完成，用于给LateInitHook判断是否执行hook逻辑
+	 */
 	private volatile static boolean inited = false;
 
 	@SneakyThrows
@@ -63,60 +92,24 @@ public class XposedMain implements IXposedHookLoadPackage {
 		//包名验证
 		String packageName = "tv.danmaku.bili";
 		if(!lpparam.packageName.equals(packageName)) return;
-		//初始化
+		//加载模块
 		this.lpparam = lpparam;
-		//region hook获取应用的application，执行初始化
+		//region hook获取应用的application
 		Method attach = Application.class.getDeclaredMethod(
 				"attach", Context.class);
-		unhook = XposedBridge.hookMethod(attach, new XC_MethodHook() {
+		applicationUnhook = XposedBridge.hookMethod(attach,
+				new XC_MethodHook() {
 
 			@SneakyThrows
 			@Override
 			protected void afterHookedMethod(MethodHookParam param) {
 				//hook到后马上取消hook
-				unhook.unhook();
+				applicationUnhook.unhook();
 				//获取application
 				if(hookApplication == null) {
 					hookApplication = (Application) param.thisObject;
 				}
-				//初始化
-				if(inited) return;
-				//不在新线程中进行初始化可能会使APP闪退
-				Runnable initAction = () -> {
-					try {
-						init();
-						inited = true;
-						if(mainPreference.getTestMode()) {
-							Logger.testLog("清心模块加载成功");
-							Logger.toast("清心模块加载成功", Toast.LENGTH_SHORT);
-						}
-					} catch(IllegalArgumentException iae) {
-						String eMsg = iae.getMessage();
-						if(eMsg == null) return;
-						//初始化时读取不到provider
-						if(eMsg.contains("Unknown authority") ||
-								eMsg.contains("Unknown URI")) {
-							reportProblem(Constant.ErrorMessage
-									.INIT_NO_AUTO_BOOT_PERMISSION, iae);
-						} else {
-							//其他问题
-							reportProblem(Constant.ErrorMessage
-									.INIT_UNKNOWN_ERROR, iae);
-						}
-					} catch(Throwable t) {
-						//其他问题
-						reportProblem(Constant.ErrorMessage
-								.INIT_UNKNOWN_ERROR, t);
-					}
-				};
-				//判断当前系统版本是否低于或等于Android 7.1
-				//若是，则在当前线程中进行初始化（可能会闪退）
-				if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
-					//Build.VERSION_CODES.N_MR1 = 25 (Android 7.1)
-					initAction.run();
-				} else {
-					new Thread(initAction).start();
-				}
+				afterGetApplication();
 			}
 		});
 		//endregion
@@ -128,7 +121,79 @@ public class XposedMain implements IXposedHookLoadPackage {
 	}
 
 	/**
-	 * 在hook到application后执行，加载基本配置和规则数据
+	 * 得到application对象后执行的逻辑
+	 */
+	private void afterGetApplication() {
+		//初始化，构建初始化逻辑，指定初始化的信息报告逻辑
+		if(inited) return;
+		//不在新线程中进行初始化可能会使APP闪退
+		Runnable initAction = () -> {
+			try {
+				init();
+				inited = true;
+				if(mainPreference.getTestMode()) {
+					Logger.testLog("清心模块加载成功");
+					Logger.toast("清心模块加载成功", Toast.LENGTH_SHORT);
+				}
+			} catch(IllegalArgumentException iae) {
+				String eMsg = iae.getMessage();
+				if(eMsg == null) return;
+				//初始化时读取不到provider
+				if(eMsg.contains("Unknown authority") ||
+						eMsg.contains("Unknown URI")) {
+					reportProblem(Constant.ErrorMessage
+							.INIT_NO_AUTO_BOOT_PERMISSION, iae);
+				} else {
+					//其他问题
+					reportProblem(Constant.ErrorMessage
+							.INIT_UNKNOWN_ERROR, iae);
+				}
+			} catch(Throwable t) {
+				//其他问题
+				reportProblem(Constant.ErrorMessage
+						.INIT_UNKNOWN_ERROR, t);
+			}
+		};
+		//判断当前系统版本是否低于或等于Android 7.1
+		//若是，则在mainLooper中进行初始化
+		if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
+			//Build.VERSION_CODES.N_MR1 = 25 (Android 7.1)
+			/* 用于初始化的线程，它将建立Looper，然后将初始化逻辑传递给
+			 * mainLooper，然后开启loop循环后阻塞
+			 * 它只负责传递初始化逻辑，理论上并不需要多长时间就能执行完成 */
+			class InitThread extends Thread {
+
+				/**
+				 * 本线程的looper
+				 */
+				private Looper thisLooper;
+
+				@Override
+				public void run() {
+					Looper.prepare();
+					thisLooper = Looper.myLooper();
+					new Handler(Looper.getMainLooper())
+							.post(initAction);
+					Looper.loop();
+				}
+			}
+			InitThread initThread = new InitThread();
+			initThread.start();
+			//监听InitThread线程的线程，在一定时间后停止其loop
+			new Thread((CodeUtils.ThrowsRunnable) () -> {
+				initThread.join(1000);
+				if(initThread.isAlive()) {
+					initThread.thisLooper.quit();
+					initThread.interrupt();
+				}
+			}).start();
+		} else {
+			new Thread(initAction).start();
+		}
+	}
+
+	/**
+	 * 加载基本配置和规则数据
 	 */
 	private void init() {
 		contentResolver = hookApplication.getContentResolver();
@@ -167,7 +232,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 				BlockRule.Region.DONGTAI));
 		//endregion
 		Logger.testLog(mainPreference.toString());
-		Logger.testLog(blockRuleCache.toString());
+		//Logger.testLog(blockRuleCache.toString());
 		//注册更新receiver
 		registerUpdateReceiver();
 	}

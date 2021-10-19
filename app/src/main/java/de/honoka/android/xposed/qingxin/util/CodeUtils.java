@@ -5,12 +5,20 @@ import android.annotation.SuppressLint;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import lombok.SneakyThrows;
+
 @SuppressLint("SimpleDateFormat")
 public class CodeUtils {
 
-	public interface ThrowsRunnable {
+	public interface ThrowsRunnable extends Runnable {
 
-		void run() throws Throwable;
+		void throwsRun() throws Throwable;
+
+		@SneakyThrows
+		@Override
+		default void run() {
+			throwsRun();
+		}
 	}
 
 	public static void doIgnoreException(ThrowsRunnable action) {

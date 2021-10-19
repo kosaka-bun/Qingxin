@@ -1,7 +1,5 @@
 package de.honoka.android.xposed.qingxin.xposed.hook;
 
-import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,6 +9,8 @@ import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.robv.android.xposed.XposedHelpers;
 import lombok.SneakyThrows;
+
+import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
 
 /**
  * 评论拦截逻辑
@@ -26,7 +26,8 @@ public class CommentHook extends LateInitHook {
 	@SneakyThrows
 	@Override
 	public void after(MethodHookParam param) {
-		Logger.testLog("Hook到方法：" + param.method.toString());
+		//verbose test log
+		//Logger.testLog("Hook到方法：" + param.method.toString());
 		//方法返回值可能是List或ReplyInfo
 		if(((Method) param.method).getReturnType().equals(List.class)) {
 			//拿到评论区数据列表
