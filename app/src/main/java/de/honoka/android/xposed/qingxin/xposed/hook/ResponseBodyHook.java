@@ -7,7 +7,9 @@ import java.util.function.Function;
 
 import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
+import de.honoka.android.xposed.qingxin.xposed.filter.HotSearchFilter;
 import de.honoka.android.xposed.qingxin.xposed.filter.MainPageFilter;
+import de.honoka.android.xposed.qingxin.xposed.filter.SearchBarFilter;
 import lombok.SneakyThrows;
 
 /**
@@ -46,7 +48,9 @@ public class ResponseBodyHook extends LateInitHook {
 	private String handleJson(String jsonStr) {
 		//构建操作列表，依次操作，一个成功即返回过滤后的值
 		List<Function<String, String>> functions = Arrays.asList(
-				MainPageFilter.instance
+				MainPageFilter.instance,
+				HotSearchFilter.instance,
+				SearchBarFilter.instance
 		);
 		//由于不能确定json属于哪种数据，所以将所有过滤规则都试一遍，取有效的那一个
 		//所以过滤器一定不能在一般情况下抛出异常

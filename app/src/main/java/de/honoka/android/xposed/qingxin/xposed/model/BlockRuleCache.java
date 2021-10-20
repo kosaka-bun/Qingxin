@@ -38,7 +38,7 @@ public class BlockRuleCache {
 	/**
 	 * 判断某个字符串是否匹配某个规则列表里面的某条规则
 	 */
-	private boolean isMatchRuleList(String str, List<BlockRule> blockRuleList) {
+	public boolean isMatchRuleList(String str, List<BlockRule> blockRuleList) {
 		for(BlockRule blockRule : blockRuleList) {
 			switch(blockRule.getType()) {
 				//按关键词
@@ -136,6 +136,19 @@ public class BlockRuleCache {
 		//按标题判断
 		String title = MainPageFilter.getBannerItemTitle(bannerItem);
 		if(isMatchRuleList(title, videoTitleList)) return true;
+		return false;
+	}
+
+	/**
+	 * 判断某个热搜条目是否应当被拦截
+	 */
+	public boolean isBlockHotSearch(JsonObject hotSearchJo) {
+		String keyword = hotSearchJo.get("keyword").getAsString();
+		String showName = hotSearchJo.get("show_name").getAsString();
+		//按搜索词匹配
+		if(isMatchRuleList(keyword, hotSearchWordList)) return true;
+		//按热搜条目的文字来匹配
+		if(isMatchRuleList(showName, hotSearchWordList)) return true;
 		return false;
 	}
 }
