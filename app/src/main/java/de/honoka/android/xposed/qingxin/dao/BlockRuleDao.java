@@ -12,14 +12,14 @@ import lombok.SneakyThrows;
 
 public class BlockRuleDao {
 
-	private final Dao<BlockRule, Integer> dao;
+	private final Dao<BlockRule, String> dao;
 
 	@SneakyThrows
 	public BlockRuleDao(Context context) {
 		dao = new DatabaseHelper(context).getDao(BlockRule.class);
 	}
 
-	public Dao<BlockRule, Integer> getDao() {
+	public Dao<BlockRule, String> getDao() {
 		return dao;
 	}
 

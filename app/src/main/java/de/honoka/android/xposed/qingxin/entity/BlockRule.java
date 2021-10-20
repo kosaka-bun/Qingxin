@@ -14,8 +14,11 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class BlockRule {
 
-	@DatabaseField(generatedId = true, unique = true)
-	private Integer id;
+	/**
+	 * UUID
+	 */
+	@DatabaseField(id = true, unique = true)
+	private String id;
 
 	/**
 	 * 规则类型（关键词，正则表达式）

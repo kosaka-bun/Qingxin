@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -54,8 +55,6 @@ public class AddRuleActivity extends AppCompatActivity {
 			type = BlockRule.RuleType.KEYWORD;
 		else if(((RadioButton) findViewById(R.id.type_pattern_radio)).isChecked()) {
 			type = BlockRule.RuleType.PATTERN;
-			//正则表达式不区分大小写
-			content = "(?i)" + content;
 			//验证正则表达式
 			try {
 				Pattern.compile(content);
@@ -66,6 +65,8 @@ public class AddRuleActivity extends AppCompatActivity {
 				view.setEnabled(true);
 				return;
 			}
+			//正则表达式不区分大小写
+			content = "(?i)(" + content + ")";
 		} else {
 			//未选择类型
 			Toast.makeText(this, "请选择类型",
@@ -101,6 +102,7 @@ public class AddRuleActivity extends AppCompatActivity {
 		//endregion
 		//region 绑定数据，保存数据
 		BlockRule blockRule = new BlockRule()
+				.setId(UUID.randomUUID().toString())
 				.setContent(content)
 				.setType(type)
 				.setVideoTitle(videoTitle)
