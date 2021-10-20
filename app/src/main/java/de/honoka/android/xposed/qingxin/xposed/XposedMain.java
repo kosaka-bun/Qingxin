@@ -11,6 +11,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
@@ -28,6 +30,7 @@ import de.honoka.android.xposed.qingxin.entity.MainPreference;
 import de.honoka.android.xposed.qingxin.provider.QingxinProvider;
 import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
+import de.honoka.android.xposed.qingxin.util.HookedWebViewClient;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.ResponseBodyHook;
@@ -310,6 +313,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 	private void initAllHook() {
 		initCommentHook();
 		initResponseBodyHook();
+		initWebViewHook();
 	}
 
 	/**
@@ -367,5 +371,23 @@ public class XposedMain implements IXposedHookLoadPackage {
 				"A", methodHook);
 		XposedHelpers.findAndHookMethod(responseBodyClass,
 				"c", methodHook);
+	}
+
+	@SneakyThrows
+	private void initWebViewHook() {
+		XposedHelpers.findAndHookMethod(WebView.class,
+				"setWebViewClient", WebViewClient.class,
+				new XC_MethodHook() {
+
+			@SneakyThrows
+			@Override
+			protected void beforeHookedMethod(MethodHookParam param) {
+				WebView.setWebContentsDebuggingEnabled(true);
+				Logger.testLog("WebView调试已开启");
+				//hook WebViewClient
+				WebViewClient webViewClient = (WebViewClient) param.args[0];
+				param.args[0] = new HookedWebViewClient(webViewClient);
+			}
+		});
 	}
 }
