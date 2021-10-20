@@ -1,5 +1,7 @@
 package de.honoka.android.xposed.qingxin.xposed.filter;
 
+import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -11,8 +13,6 @@ import java.util.function.Function;
 
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
-
-import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
 
 /**
  * 首页推荐过滤器
@@ -89,19 +89,9 @@ public class MainPageFilter implements Function<String, String> {
 				Logger.blockLog("首页推荐拦截【规则】：" + getMainPageItemTitle(item));
 				continue;
 			}
-			//判断是否是竖屏视频（不拦截，只还原）
-			if(item.get("goto").getAsString().equals("vertical_av")) {
-				if(XposedMain.mainPreference.getConvertAllVerticalAv()) {
-					convertVerticalVideoItem(item);
-					//日志
-					Logger.blockLog("还原竖屏视频：" + getMainPageItemTitle(item));
-					//Logger.testLog(Singletons.prettyGson.toJson(item));
-				}
-			}
-			//缓存左下角图片链接
-			if(item.get("goto").getAsString().equals("av")) {
-				cacheGotoIconUrl(item);
-			}
+			//到达此处就可以认为这个推荐项目是不用拦截的
+			//对推荐项目进行优化
+			optimizeMainPageItem(item);
 		}
 		if(blockCount > 0)
 			Logger.toastOnBlock("拦截了" + blockCount + "条首页推荐");
@@ -160,6 +150,25 @@ public class MainPageFilter implements Function<String, String> {
 	}
 
 	/**
+	 * 对首页推荐项进行优化的逻辑
+	 */
+	private void optimizeMainPageItem(JsonObject item) {
+		//判断是否是竖屏视频
+		if(item.get("goto").getAsString().equals("vertical_av")) {
+			if(XposedMain.mainPreference.getConvertAllVerticalAv()) {
+				convertVerticalVideoItem(item);
+				//日志
+				Logger.blockLog("还原竖屏视频：" + getMainPageItemTitle(item));
+				//Logger.testLog(Singletons.prettyGson.toJson(item));
+			}
+		}
+		//缓存左下角图片链接
+		if(item.get("goto").getAsString().equals("av")) {
+			cacheGotoIconUrl(item);
+		}
+	}
+
+	/**
 	 * 还原首页推荐项的竖屏视频
 	 */
 	private void convertVerticalVideoItem(JsonObject item) {
@@ -173,8 +182,8 @@ public class MainPageFilter implements Function<String, String> {
 		item.remove("uri");
 		item.addProperty("uri", uri);
 		//移除两个多余的键
-		item.remove("official_icon");
-		item.remove("ff_cover");
+		//item.remove("official_icon");
+		//item.remove("ff_cover");
 		//region 替换卡片左下角的手机图标
 		//（这东西让我误以为还原没有成功，找了大半天普通视频和竖屏视频的区别）
 		JsonObject gotoIcon = item.getAsJsonObject("goto_icon");
