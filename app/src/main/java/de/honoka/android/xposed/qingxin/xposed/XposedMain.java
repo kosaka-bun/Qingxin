@@ -71,7 +71,8 @@ public class XposedMain implements IXposedHookLoadPackage {
 	/**
 	 * 模块基本配置
 	 */
-	public static MainPreference mainPreference;
+	public static MainPreference mainPreference =
+			MainPreference.getDefaultPreference();
 
 	/**
 	 * 各作用域拦截规则列表，及各作用域的拦截逻辑
@@ -100,8 +101,6 @@ public class XposedMain implements IXposedHookLoadPackage {
 		this.lpparam = lpparam;
 		try {
 			//region hook获取应用的application
-			//Method attach = Application.class.getDeclaredMethod(
-			//		"attach", Context.class);
 			Method callApplicationOnCreate = Instrumentation.class
 					.getDeclaredMethod("callApplicationOnCreate",
 							Application.class);
