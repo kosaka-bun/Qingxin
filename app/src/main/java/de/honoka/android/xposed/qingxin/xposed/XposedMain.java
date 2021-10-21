@@ -2,6 +2,7 @@ package de.honoka.android.xposed.qingxin.xposed;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -97,30 +98,38 @@ public class XposedMain implements IXposedHookLoadPackage {
 		if(!lpparam.packageName.equals(packageName)) return;
 		//加载模块
 		this.lpparam = lpparam;
-		//region hook获取应用的application
-		Method attach = Application.class.getDeclaredMethod(
-				"attach", Context.class);
-		applicationUnhook = XposedBridge.hookMethod(attach,
-				new XC_MethodHook() {
+		try {
+			//region hook获取应用的application
+			//Method attach = Application.class.getDeclaredMethod(
+			//		"attach", Context.class);
+			Method callApplicationOnCreate = Instrumentation.class
+					.getDeclaredMethod("callApplicationOnCreate",
+							Application.class);
+			applicationUnhook = XposedBridge.hookMethod(callApplicationOnCreate,
+					new XC_MethodHook() {
 
-			@SneakyThrows
-			@Override
-			protected void afterHookedMethod(MethodHookParam param) {
-				//hook到后马上取消hook
-				applicationUnhook.unhook();
-				//获取application
-				if(hookApplication == null) {
-					hookApplication = (Application) param.thisObject;
+				@SneakyThrows
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) {
+					//hook到后马上取消hook
+					applicationUnhook.unhook();
+					//获取application
+					if(hookApplication == null) {
+						hookApplication = (Application) param.args[0];
+					}
+					afterGetApplication();
 				}
-				afterGetApplication();
-			}
-		});
-		//endregion
-		/* 初始化所有hook
-		 * hook的初始化理论上要先于配置与规则的初始化
-		 * 若被hook的方法在配置初始化完成之前被调用，则LateInitHook类
-		 * 会根据init的值忽略掉本次调用，不执行hook逻辑 */
-		initAllHook();
+			});
+			//endregion
+			/* 初始化所有hook
+			 * hook的初始化理论上要先于配置与规则的初始化
+			 * 若被hook的方法在配置初始化完成之前被调用，则LateInitHook类
+			 * 会根据init的值忽略掉本次调用，不执行hook逻辑 */
+			initAllHook();
+			Logger.testLogForce("hook加载完成");
+		} catch(Throwable t) {
+			reportProblem("hook方法时出现问题，请查看日志", t);
+		}
 	}
 
 	/**
@@ -129,6 +138,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 	private void afterGetApplication() {
 		//初始化，构建初始化逻辑，指定初始化的信息报告逻辑
 		if(inited) return;
+		Logger.testLogForce("得到Application对象，开始加载配置与规则");
 		//不在新线程中进行初始化可能会使APP闪退
 		Runnable initAction = () -> {
 			try {

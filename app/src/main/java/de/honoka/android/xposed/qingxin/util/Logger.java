@@ -2,6 +2,7 @@ package de.honoka.android.xposed.qingxin.util;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
@@ -54,6 +55,7 @@ public class Logger {
 	 * 调试日志，同时输出到框架控制台和文件
 	 */
 	public static void testLogForce(String log) {
+	    Log.i("Qingxin", log);
 		XposedBridge.log("\n" + log);
 		writeToFile(log);
 	}
@@ -107,14 +109,16 @@ public class Logger {
 	 * 写出日志到文件
 	 */
 	private static synchronized void writeToFile(String log) {
-		log = CodeUtils.getSimpleDateFormat().format(new Date()) + "\n" +
-				log + "\n\n\n";
-		File logFile = new File(XposedMain.hookApplication
-				.getCacheDir().getPath() + File.separator + LOG_FILE_NAME);
-		FileUtils.checkFiles(logFile);
-		try(FileOutputStream fileOutputStream = new FileOutputStream(
-				logFile, true)) {
-			fileOutputStream.write(log.getBytes(StandardCharsets.UTF_8));
+		try {
+			log = CodeUtils.getSimpleDateFormat().format(new Date()) + "\n" +
+					log + "\n\n\n";
+			File logFile = new File(XposedMain.hookApplication
+					.getCacheDir().getPath() + File.separator + LOG_FILE_NAME);
+			FileUtils.checkFiles(logFile);
+			try(FileOutputStream fileOutputStream = new FileOutputStream(
+					logFile, true)) {
+				fileOutputStream.write(log.getBytes(StandardCharsets.UTF_8));
+			}
 		} catch(Throwable t) {
 			//ignore
 		}
