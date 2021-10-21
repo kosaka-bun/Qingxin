@@ -1,4 +1,4 @@
-package de.honoka.android.xposed.qingxin.util;
+package de.honoka.android.xposed.qingxin.xposed.hook;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -17,6 +17,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.Nullable;
+
+import de.honoka.android.xposed.qingxin.common.Constant;
+import de.honoka.android.xposed.qingxin.util.AndroidUtils;
 
 @SuppressLint("NewApi")
 public class HookedWebViewClient extends WebViewClient {
@@ -38,11 +41,7 @@ public class HookedWebViewClient extends WebViewClient {
 	}
 
 	private void initJquery(WebView webView) {
-		String js = "let script = document.createElement('script');" +
-				"script.setAttribute('src', 'https://apps.bdimg.com/" +
-				"libs/jquery/2.1.4/jquery.min.js');" +
-				"document.body.appendChild(script);";
-		AndroidUtils.executeJs(webView, js);
+		AndroidUtils.executeJs(webView, Constant.Scripts.getINIT_JQUERY());
 	}
 
 	//region 无关方法
