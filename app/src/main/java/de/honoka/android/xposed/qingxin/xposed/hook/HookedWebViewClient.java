@@ -41,7 +41,7 @@ public class HookedWebViewClient extends WebViewClient {
 	}
 
 	private void initJquery(WebView webView) {
-		AndroidUtils.executeJs(webView, Constant.Scripts.getINIT_JQUERY());
+		AndroidUtils.executeJs(webView, Constant.Scripts.INIT_JQUERY);
 	}
 
 	//region 无关方法

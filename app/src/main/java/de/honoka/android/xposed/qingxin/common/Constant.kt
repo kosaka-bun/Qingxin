@@ -28,7 +28,7 @@ object Constant {
 
 	object Scripts {
 
-		@JvmStatic
+		@JvmField
 		val INIT_JQUERY: String = CodeUtils.singleLine("""
 				let script = document.createElement('script');
 				script.setAttribute('src', 'https://apps.bdimg.com' + 
