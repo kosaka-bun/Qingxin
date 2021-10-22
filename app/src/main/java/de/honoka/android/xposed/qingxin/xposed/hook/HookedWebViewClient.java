@@ -18,8 +18,7 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.Nullable;
 
-import de.honoka.android.xposed.qingxin.common.Constant;
-import de.honoka.android.xposed.qingxin.util.AndroidUtils;
+import de.honoka.android.xposed.qingxin.util.WebViewUtils;
 
 @SuppressLint("NewApi")
 public class HookedWebViewClient extends WebViewClient {
@@ -33,15 +32,19 @@ public class HookedWebViewClient extends WebViewClient {
 	@Override
 	public void onPageFinished(WebView view, String url) {
 		originalWebClient.onPageFinished(view, url);
+		//判断WebView加载的网页
 		//专栏页面
 		if(url.contains("www.bilibili.com/read/native")) {
-			//添加JQuery
-			initJquery(view);
+			handleColumn(view);
 		}
 	}
 
-	private void initJquery(WebView webView) {
-		AndroidUtils.executeJs(webView, Constant.Scripts.INIT_JQUERY);
+	/**
+	 * 处理专栏页面
+	 */
+	private void handleColumn(WebView webView) {
+		//添加JQuery
+		WebViewUtils.initJquery(webView);
 	}
 
 	//region 无关方法

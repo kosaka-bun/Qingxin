@@ -2,7 +2,6 @@ package de.honoka.android.xposed.qingxin.util;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
@@ -55,7 +54,7 @@ public class Logger {
 	 * 调试日志，同时输出到框架控制台和文件
 	 */
 	public static void testLogForce(String log) {
-	    Log.i("Qingxin", log);
+	    //Log.i("Qingxin", log);
 		XposedBridge.log("\n" + log);
 		writeToFile(log);
 	}
