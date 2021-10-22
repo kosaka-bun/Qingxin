@@ -23,4 +23,10 @@ object Constant {
 		const val INIT_UNKNOWN_ERROR =
 				"清心模块加载失败，请到bilibili数据目录下查看日志文件"
 	}
+
+	object Url {
+
+		const val JQUERY = "https://apps.bdimg.com/libs/jquery" +
+				"/2.1.4/jquery.min.js"
+	}
 }

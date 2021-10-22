@@ -60,7 +60,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 	/**
 	 * 被hook应用的内容解析器，用于获取主程序的配置和规则数据
 	 */
-	private ContentResolver contentResolver;
+	public static ContentResolver contentResolver;
 
 	/**
 	 * 对Application类的attach方法进行hook的相关信息，用于在得到

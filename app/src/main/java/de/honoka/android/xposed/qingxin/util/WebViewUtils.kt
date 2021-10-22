@@ -1,6 +1,7 @@
 package de.honoka.android.xposed.qingxin.util
 
 import android.webkit.WebView
+import de.honoka.android.xposed.qingxin.common.Constant
 
 object WebViewUtils {
 
@@ -30,8 +31,7 @@ object WebViewUtils {
 
         const val INIT_JQUERY: String = """
             let script = document.createElement('script');
-            script.setAttribute('src', 'https://apps.bdimg.com' + 
-                    '/libs/jquery/2.1.4/jquery.min.js');
+            script.setAttribute('src', '${Constant.Url.JQUERY}');
             document.body.appendChild(script);
         """
     }

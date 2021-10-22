@@ -1,7 +1,7 @@
 package de.honoka.android.xposed.qingxin.util;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import lombok.SneakyThrows;
@@ -9,7 +9,7 @@ import lombok.SneakyThrows;
 public class FileUtils {
 
 	@SneakyThrows
-	public static String streamToString(FileInputStream is) {
+	public static String streamToString(InputStream is) {
 		byte[] bytes = new byte[is.available()];
 		is.read(bytes);
 		return new String(bytes, StandardCharsets.UTF_8);

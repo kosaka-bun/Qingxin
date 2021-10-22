@@ -2,6 +2,7 @@ package de.honoka.android.xposed.qingxin.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.InputStream;
 import java.util.List;
 
 import de.honoka.android.xposed.qingxin.common.Singletons;
@@ -16,6 +18,8 @@ import de.honoka.android.xposed.qingxin.dao.BlockRuleDao;
 import de.honoka.android.xposed.qingxin.entity.BlockRule;
 import de.honoka.android.xposed.qingxin.entity.MainPreference;
 import de.honoka.android.xposed.qingxin.service.MainPreferenceService;
+import de.honoka.android.xposed.qingxin.util.FileUtils;
+import lombok.SneakyThrows;
 
 public class QingxinProvider extends ContentProvider {
 
@@ -25,6 +29,7 @@ public class QingxinProvider extends ContentProvider {
 	public static final Uri QINGXIN_PROVIDER_URI =
 			Uri.parse("content://" + QINGXIN_PROVIDER_AUTHORITIES);
 
+	@SneakyThrows
 	@Nullable
 	@Override
 	public Bundle call(@NonNull String method, @Nullable String arg,
@@ -50,6 +55,12 @@ public class QingxinProvider extends ContentProvider {
 				data = Singletons.gson.toJson(rules);
 				break;
 			}
+			case RequestMethod.ASSETS: {
+				AssetManager assetManager = getContext().getAssets();
+				InputStream stream = assetManager.open(arg);
+				data = FileUtils.streamToString(stream);
+				break;
+			}
 		}
 		bundle.putString("data", data);
 		return bundle;
@@ -60,6 +71,8 @@ public class QingxinProvider extends ContentProvider {
 		String MAIN_PREFERENCE = "main_preference";
 
 		String BLOCK_RULE = "block_rule";
+
+		String ASSETS = "assets";
 	}
 
 	//region 无关方法
