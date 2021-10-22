@@ -1,16 +1,16 @@
 package de.honoka.android.xposed.qingxin.xposed.hook;
 
+import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
+import de.honoka.android.xposed.qingxin.util.TextUtils;
 import de.robv.android.xposed.XposedHelpers;
 import lombok.SneakyThrows;
-
-import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
 
 /**
  * 评论拦截逻辑
@@ -80,7 +80,7 @@ public class CommentHook extends LateInitHook {
 		String message = XposedHelpers.callMethod(content,
 				"getMessage").toString();
 		if(blockRuleCache.isBlockCommentMessage(message)) {
-			Logger.blockLog("评论拦截：" + CodeUtils.singleLine(
+			Logger.blockLog("评论拦截：" + TextUtils.singleLine(
 					message, BLOCK_LOG_LENGTH_LIMIT));
 			return true;
 		}
@@ -91,7 +91,7 @@ public class CommentHook extends LateInitHook {
 				"getName").toString();
 		if(blockRuleCache.isBlockUsername(username)) {
 			Logger.blockLog("评论拦截（按用户名）：" +
-					CodeUtils.singleLine(message, BLOCK_LOG_LENGTH_LIMIT) +
+					TextUtils.singleLine(message, BLOCK_LOG_LENGTH_LIMIT) +
 					"\n用户名：" + username);
 			return true;
 		}

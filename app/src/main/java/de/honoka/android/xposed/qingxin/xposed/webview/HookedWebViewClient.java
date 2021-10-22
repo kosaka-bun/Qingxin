@@ -1,4 +1,4 @@
-package de.honoka.android.xposed.qingxin.xposed.hook;
+package de.honoka.android.xposed.qingxin.xposed.webview;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -18,8 +18,6 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.Nullable;
 
-import de.honoka.android.xposed.qingxin.util.WebViewUtils;
-
 @SuppressLint("NewApi")
 public class HookedWebViewClient extends WebViewClient {
 
@@ -32,19 +30,8 @@ public class HookedWebViewClient extends WebViewClient {
 	@Override
 	public void onPageFinished(WebView view, String url) {
 		originalWebClient.onPageFinished(view, url);
-		//判断WebView加载的网页
-		//专栏页面
-		if(url.contains("www.bilibili.com/read/native")) {
-			handleColumn(view);
-		}
-	}
-
-	/**
-	 * 处理专栏页面
-	 */
-	private void handleColumn(WebView webView) {
-		//添加JQuery
-		WebViewUtils.initJquery(webView);
+		//判断WebView加载的网页，选择合适的处理器
+		HandlerSwitcher.apply(view, url);
 	}
 
 	//region 无关方法
