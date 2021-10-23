@@ -33,6 +33,7 @@ import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
+import de.honoka.android.xposed.qingxin.xposed.hook.DanmakuHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.ResponseBodyHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.WebViewHook;
 import de.honoka.android.xposed.qingxin.xposed.model.BlockRuleCache;
@@ -44,7 +45,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.SneakyThrows;
 
 @SuppressLint("DiscouragedPrivateApi")
-@SuppressWarnings("JavaReflectionMemberAccess")
 public class XposedMain implements IXposedHookLoadPackage {
 
 	/**
@@ -323,6 +323,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 		initCommentHook();
 		initResponseBodyHook();
 		initWebViewHook();
+		initDanmakuHook();
 	}
 
 	/**
@@ -387,5 +388,44 @@ public class XposedMain implements IXposedHookLoadPackage {
 		XposedHelpers.findAndHookMethod(WebView.class,
 				"setWebViewClient", WebViewClient.class,
 				new WebViewHook());
+	}
+
+	/**
+	 * 弹幕拦截
+	 */
+	@SneakyThrows
+	private void initDanmakuHook() {
+		//region 要Hook的类名
+		List<String> classNames = Arrays.asList(
+			"com.bapis.bilibili.broadcast.message.main.DanmukuEvent",
+			"com.bapis.bilibili.broadcast.message.tv.DmSegLiveReply",
+			"com.bapis.bilibili.community.service.dm.v1.DmSegMobileReply",
+			"com.bapis.bilibili.community.service.dm.v1.DmSegOttReply",
+			"com.bapis.bilibili.community.service.dm.v1.DmSegSDKReply",
+			"com.bapis.bilibili.tv.interfaces.dm.v1.DmSegMobileReply",
+			"com.bilibili.playerbizcommon.api.PlayerDanmukuReplyListInfo"
+		);
+		//endregion
+		//根据类名获得类对象
+		List<Class<?>> classes = new ArrayList<>();
+		for(String className : classNames) {
+			classes.add(lpparam.classLoader.loadClass(className));
+		}
+		//拿到这些类中的返回值类型为List的对象
+		List<Method> methods = new ArrayList<>();
+		for(Class<?> aClass : classes) {
+			//遍历某个类中的所有方法，将返回值类型为List的方法添加到列表中
+			Method[] declaredMethods = aClass.getDeclaredMethods();
+			for(Method declaredMethod : declaredMethods) {
+				if(declaredMethod.getReturnType().equals(List.class)) {
+					methods.add(declaredMethod);
+				}
+			}
+		}
+		//为这些方法绑定Hook
+		DanmakuHook danmakuHook = new DanmakuHook();
+		for(Method method : methods) {
+			XposedBridge.hookMethod(method, danmakuHook);
+		}
 	}
 }

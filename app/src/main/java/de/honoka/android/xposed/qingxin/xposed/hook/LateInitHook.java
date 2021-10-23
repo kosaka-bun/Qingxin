@@ -8,9 +8,9 @@ import de.robv.android.xposed.XC_MethodHook;
  */
 public abstract class LateInitHook extends XC_MethodHook {
 
-	void before(MethodHookParam param) {}
+	public void before(MethodHookParam param) {}
 
-	void after(MethodHookParam param) {}
+	public void after(MethodHookParam param) {}
 
 	@Override
 	protected void beforeHookedMethod(MethodHookParam param) {

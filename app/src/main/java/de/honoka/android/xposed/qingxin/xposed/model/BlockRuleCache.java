@@ -151,4 +151,11 @@ public class BlockRuleCache {
 		if(isMatchRuleList(showName, hotSearchWordList)) return true;
 		return false;
 	}
+
+	/**
+	 * 判断某个弹幕内容是否应当被拦截
+	 */
+	public boolean isBlockDanmakuContent(String content) {
+		return isMatchRuleList(content, danmakuList);
+	}
 }
