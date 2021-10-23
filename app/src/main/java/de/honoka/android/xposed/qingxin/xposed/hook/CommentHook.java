@@ -1,7 +1,5 @@
 package de.honoka.android.xposed.qingxin.xposed.hook;
 
-import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,6 +10,8 @@ import de.honoka.android.xposed.qingxin.util.TextUtils;
 import de.robv.android.xposed.XposedHelpers;
 import lombok.SneakyThrows;
 
+import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
+
 /**
  * 评论拦截逻辑
  */
@@ -21,7 +21,7 @@ public class CommentHook extends LateInitHook {
 	/**
 	 * 显示拦截日志时，最多只显示被拦截的评论的多少个字符
 	 */
-	private static final int BLOCK_LOG_LENGTH_LIMIT = 50;
+	public static final int BLOCK_LOG_LENGTH_LIMIT = 50;
 
 	@SneakyThrows
 	@Override

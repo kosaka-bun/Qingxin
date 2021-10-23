@@ -34,8 +34,8 @@ import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.ResponseBodyHook;
+import de.honoka.android.xposed.qingxin.xposed.hook.WebViewHook;
 import de.honoka.android.xposed.qingxin.xposed.model.BlockRuleCache;
-import de.honoka.android.xposed.qingxin.xposed.webview.HookedWebViewClient;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -386,17 +386,6 @@ public class XposedMain implements IXposedHookLoadPackage {
 	private void initWebViewHook() {
 		XposedHelpers.findAndHookMethod(WebView.class,
 				"setWebViewClient", WebViewClient.class,
-				new XC_MethodHook() {
-
-			@SneakyThrows
-			@Override
-			protected void beforeHookedMethod(MethodHookParam param) {
-				WebView.setWebContentsDebuggingEnabled(true);
-				Logger.testLog("WebView调试已开启");
-				//hook WebViewClient
-				WebViewClient webViewClient = (WebViewClient) param.args[0];
-				param.args[0] = new HookedWebViewClient(webViewClient);
-			}
-		});
+				new WebViewHook());
 	}
 }

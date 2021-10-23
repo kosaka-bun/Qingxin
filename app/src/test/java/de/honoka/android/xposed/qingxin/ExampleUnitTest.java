@@ -1,11 +1,23 @@
 package de.honoka.android.xposed.qingxin;
 
+import org.junit.Test;
+
+import de.honoka.android.xposed.qingxin.xposed.webview.handler.ColumnHandler;
+
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
+
+	@Test
+	public void test2() {
+		StringBuilder builder = new StringBuilder(ColumnHandler.class
+				.getSimpleName());
+		builder.setCharAt(0, Character.toLowerCase(builder.charAt(0)));
+		System.out.println(builder);
+	}
 
 	//@Test
 	public void test1() {

@@ -1,6 +1,6 @@
 package de.honoka.android.xposed.qingxin.xposed.webview
 
-import android.webkit.WebView
+import de.honoka.android.xposed.qingxin.xposed.webview.handler.BaseHandler
 import de.honoka.android.xposed.qingxin.xposed.webview.handler.ColumnHandler
 
 /**
@@ -9,11 +9,12 @@ import de.honoka.android.xposed.qingxin.xposed.webview.handler.ColumnHandler
 object HandlerSwitcher {
 
 	@JvmStatic
-	fun apply(webView: WebView, url: String) {
+	fun apply(url: String): Class<out BaseHandler>? {
 		when {
 			url.contains("www.bilibili.com/read/native") -> {
-				ColumnHandler(webView).handle()
+				return ColumnHandler::class.java
 			}
 		}
+		return null
 	}
 }

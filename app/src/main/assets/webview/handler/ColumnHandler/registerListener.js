@@ -28,28 +28,44 @@ function registerListener() {
         let elem = e.originalEvent.path[0];
         let className = $(elem).attr('class');
         //判断元素类型
+        let username = null;
         let content = null;
         //如果是一级回复
         if(className == 'reply-item') {
-            let div = $(elem).find('div.content');
-            if(div.length > 0) {
+            let contentDiv = $(elem).find('div.content');
+            if(contentDiv.length > 0) {
                 //在有内容的情况下拿到评论内容
-                content = div[0].innerText;
+                content = contentDiv[0].innerText;
+            }
+            let usernameSpan = $(elem).find('span.uname');
+            if(usernameSpan.length > 0) {
+                username = usernameSpan[0].innerText;
             }
         }
         //如果是二级回复
         else if(className == 'sub-preview-item') {
-            let span = $(elem).find('span.content');
-            if(span.length > 0) {
-                let content = span[0].innerText;
+            let contentSpan = $(elem).find('span.content');
+            if(contentSpan.length > 0) {
+                content = contentSpan[0].innerText;
                 content = content.substring(1, content.length);
+            }
+            let usernameA = $(elem).find('a.name');
+            if(usernameA.length > 0) {
+                username = usernameA[0].innerText;
             }
         }
         //处理
-        if(content == null) return;
-        if(columnJsInterface.isBlockComment(content) == 'true') {
-            console.log(content);
+        if(content != null && columnHandler.isBlockComment(
+                content) == 'true') {
             $(elem).remove();
+            columnHandler.reportBlock('content', username, content);
+            return;
+        }
+        if(username != null && columnHandler.isBlockUsername(
+                username) == 'true') {
+            $(elem).remove();
+            columnHandler.reportBlock('username', username, content);
+            return;
         }
     });
 }

@@ -18,20 +18,40 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.Nullable;
 
+import java.util.Map;
+
+import de.honoka.android.xposed.qingxin.xposed.webview.handler.BaseHandler;
+
 @SuppressLint("NewApi")
 public class HookedWebViewClient extends WebViewClient {
 
 	private final WebViewClient originalWebClient;
 
-	public HookedWebViewClient(WebViewClient originalWebClient) {
+	/**
+	 * 该Client关联的WebView上绑定的JsInterface
+	 */
+	private final Map<Class<? extends BaseHandler>, BaseHandler>
+			javascriptInterfaces;
+
+	public HookedWebViewClient(WebViewClient originalWebClient,
+			Map<Class<? extends BaseHandler>, BaseHandler> jsInterfaces) {
 		this.originalWebClient = originalWebClient;
+		this.javascriptInterfaces = jsInterfaces;
 	}
 
+	/**
+	 * 关联的WebView在页面加载完成后要执行的操作
+	 */
 	@Override
 	public void onPageFinished(WebView view, String url) {
 		originalWebClient.onPageFinished(view, url);
 		//判断WebView加载的网页，选择合适的处理器
-		HandlerSwitcher.apply(view, url);
+		Class<? extends BaseHandler> handlerClass =
+				HandlerSwitcher.apply(url);
+		//获得该WebView上绑定的对应的处理器
+		BaseHandler handler = javascriptInterfaces.get(handlerClass);
+		//执行
+		if(handler != null) handler.handle();
 	}
 
 	//region 无关方法
