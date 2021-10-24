@@ -63,12 +63,6 @@ public class XposedMain implements IXposedHookLoadPackage {
 	public static ContentResolver contentResolver;
 
 	/**
-	 * 对Application类的attach方法进行hook的相关信息，用于在得到
-	 * Application之后取消对attach方法的hook
-	 */
-	private XC_MethodHook.Unhook applicationUnhook;
-
-	/**
 	 * 模块基本配置
 	 */
 	public static MainPreference mainPreference =
@@ -91,6 +85,14 @@ public class XposedMain implements IXposedHookLoadPackage {
 	 */
 	private volatile static boolean inited = false;
 
+	/**
+	 * 用于保存Unhook对象，便于在Hook到后取消Hook
+	 */
+	private static class Holder<T> {
+
+		public T obj;
+	}
+
 	@SneakyThrows
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -104,14 +106,16 @@ public class XposedMain implements IXposedHookLoadPackage {
 			Method callApplicationOnCreate = Instrumentation.class
 					.getDeclaredMethod("callApplicationOnCreate",
 							Application.class);
-			applicationUnhook = XposedBridge.hookMethod(callApplicationOnCreate,
+			Holder<XC_MethodHook.Unhook> unhookHolder = new Holder<>();
+			unhookHolder.obj = XposedBridge.hookMethod(callApplicationOnCreate,
 					new XC_MethodHook() {
 
 				@SneakyThrows
 				@Override
 				protected void afterHookedMethod(MethodHookParam param) {
 					//hook到后马上取消hook
-					applicationUnhook.unhook();
+					if(unhookHolder.obj != null)
+						unhookHolder.obj.unhook();
 					//获取application
 					if(hookApplication == null) {
 						hookApplication = (Application) param.args[0];
@@ -397,13 +401,16 @@ public class XposedMain implements IXposedHookLoadPackage {
 	private void initDanmakuHook() {
 		//region 要Hook的类名
 		List<String> classNames = Arrays.asList(
-			"com.bapis.bilibili.broadcast.message.main.DanmukuEvent",
-			"com.bapis.bilibili.broadcast.message.tv.DmSegLiveReply",
-			"com.bapis.bilibili.community.service.dm.v1.DmSegMobileReply",
-			"com.bapis.bilibili.community.service.dm.v1.DmSegOttReply",
-			"com.bapis.bilibili.community.service.dm.v1.DmSegSDKReply",
-			"com.bapis.bilibili.tv.interfaces.dm.v1.DmSegMobileReply",
-			"com.bilibili.playerbizcommon.api.PlayerDanmukuReplyListInfo"
+				"com.bapis.bilibili.broadcast.message.main.DanmukuEvent",
+				"com.bapis.bilibili.broadcast.message.tv.DmSegLiveReply",
+				"com.bapis.bilibili.community.service.dm.v1.DmSegMobileReply",
+				"com.bapis.bilibili.community.service.dm.v1.DmSegOttReply",
+				"com.bapis.bilibili.community.service.dm.v1.DmSegSDKReply",
+				//"com.bapis.bilibili.community.service.dm.v1.DmViewReply",
+				//"com.bapis.bilibili.community.service.dm.v1.DmWebViewReply",
+				"com.bapis.bilibili.tv.interfaces.dm.v1.DmSegMobileReply",
+				//"com.bapis.bilibili.tv.interfaces.dm.v1.DmViewReply",
+				"com.bilibili.playerbizcommon.api.PlayerDanmukuReplyListInfo"
 		);
 		//endregion
 		//根据类名获得类对象

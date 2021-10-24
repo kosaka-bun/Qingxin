@@ -1,5 +1,7 @@
 package de.honoka.android.xposed.qingxin.xposed.hook;
 
+import com.google.gson.JsonParser;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +32,12 @@ public class ResponseBodyHook extends LateInitHook {
 		}
 		//判断是否是json
 		if(str.startsWith("{")) {
+			//检验json语法是否正确
+			try {
+				JsonParser.parseString(str);
+			} catch(Throwable t) {
+				return;
+			}
 			//将处理后的json修改过去
 			String handledJson = handleJson(str);
 			//根据返回值类型设定返回值

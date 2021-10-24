@@ -27,17 +27,34 @@ public class DanmakuHook extends LateInitHook {
 
 	@Override
 	public void after(MethodHookParam param) {
+		//方法返回值可能是List或DanmakuElem
+		if(param.getResult() instanceof List) {
+			handleList(param);
+		} else {
+			handleDanmakuElem(param);
+		}
+	}
+
+	/**
+	 * 处理返回值为List的方法
+	 */
+	private void handleList(MethodHookParam param) {
 		//拿到列表，并转换为可修改列表
-		List<Object> danmakuElemList = (List<Object>) param.getResult();
-		danmakuElemList = new ArrayList<>(danmakuElemList);
+		List<Object> danmakuList = (List<Object>) param.getResult();
+		danmakuList = new ArrayList<>(danmakuList);
 		//弹幕拦截时不显示气泡，并且不会拦截一条就输出一条日志
 		//将会将一个List中的所有被拦截的弹幕用一条日志输出出去
 		List<String> blockList = new ArrayList<>();
-		for(Iterator<Object> iterator = danmakuElemList.iterator();
+		for(Iterator<Object> iterator = danmakuList.iterator();
 		    iterator.hasNext(); ) {
 			Object danmaku = iterator.next();
-			String content = XposedHelpers.callMethod(danmaku,
-					"getContent").toString();
+			String content;
+			if(danmaku instanceof String) {
+				content = (String) danmaku;
+			} else {
+				content = XposedHelpers.callMethod(danmaku,
+						"getContent").toString();
+			}
 			if(XposedMain.blockRuleCache.isBlockDanmakuContent(content)) {
 				iterator.remove();
 				//日志报告的弹幕内容限制字符数
@@ -65,6 +82,17 @@ public class DanmakuHook extends LateInitHook {
 			}
 			Logger.blockLog(log.toString());
 		}
-		param.setResult(danmakuElemList);
+		param.setResult(danmakuList);
+	}
+
+	private void handleDanmakuElem(MethodHookParam param) {
+		Object danmaku = param.getResult();
+		String content = XposedHelpers.callMethod(danmaku,
+				"getContent").toString();
+		if(XposedMain.blockRuleCache.isBlockDanmakuContent(content)) {
+			Logger.blockLog("弹幕拦截：" + TextUtils.singleLine(content,
+					BLOCK_LOG_DANMAKU_MAX_LENGTH));
+			param.setResult(null);
+		}
 	}
 }
