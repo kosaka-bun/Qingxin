@@ -378,13 +378,25 @@ public class XposedMain implements IXposedHookLoadPackage {
 	 */
 	@SneakyThrows
 	private void initResponseBodyHook() {
-		Class<?> responseBodyClass = lpparam.classLoader.loadClass(
-				"okhttp3.f0");
 		ResponseBodyHook methodHook = new ResponseBodyHook();
-		XposedHelpers.findAndHookMethod(responseBodyClass,
-				"A", methodHook);
-		XposedHelpers.findAndHookMethod(responseBodyClass,
-				"c", methodHook);
+		//6.43.0
+		CodeUtils.doIgnoreException(() -> {
+			Class<?> responseBodyClass = lpparam.classLoader.loadClass(
+					"okhttp3.f0");
+			XposedHelpers.findAndHookMethod(responseBodyClass,
+					"A", methodHook);
+			XposedHelpers.findAndHookMethod(responseBodyClass,
+					"c", methodHook);
+		});
+		//6.47.0
+		CodeUtils.doIgnoreException(() -> {
+			Class<?> responseBodyClass = lpparam.classLoader.loadClass(
+					"okhttp3.f0");
+			XposedHelpers.findAndHookMethod(responseBodyClass,
+					"s", methodHook);
+			XposedHelpers.findAndHookMethod(responseBodyClass,
+					"c", methodHook);
+		});
 	}
 
 	@SneakyThrows
