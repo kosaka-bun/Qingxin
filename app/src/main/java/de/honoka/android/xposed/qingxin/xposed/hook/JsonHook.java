@@ -2,7 +2,6 @@ package de.honoka.android.xposed.qingxin.xposed.hook;
 
 import com.google.gson.JsonParser;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -15,38 +14,36 @@ import de.honoka.android.xposed.qingxin.xposed.filter.SearchBarFilter;
 import lombok.SneakyThrows;
 
 /**
- * OkHttp响应体解析方法hook
+ * json提取的hook
  */
-public class ResponseBodyHook extends LateInitHook {
+public class JsonHook extends LateInitHook {
 
 	@SneakyThrows
 	@Override
-	public void after(MethodHookParam param) {
-		Object response = param.getResult();
-		String str = "";
-		if(response instanceof String) {
-			str = ((String) response).trim();
-		} else if(response instanceof byte[]) {
-			byte[] bytes = (byte[]) response;
-			str = new String(bytes, StandardCharsets.UTF_8).trim();
-		}
-		//判断是否是json
-		if(str.startsWith("{")) {
-			//检验json语法是否正确
-			try {
-				JsonParser.parseString(str);
-			} catch(Throwable t) {
-				return;
-			}
-			//将处理后的json修改过去
-			String handledJson = handleJson(str);
-			//根据返回值类型设定返回值
-			if(response instanceof String) {
-				param.setResult(handledJson);
-			} else if(response instanceof byte[]) {
-				param.setResult(handledJson.getBytes(StandardCharsets.UTF_8));
-			}
+	public void before(MethodHookParam param) {
+		//根据参数类型获得json字符串
+		String jsonStr;
+		if(param.args[0] instanceof String) {
+			jsonStr = (String) param.args[0];
+		} else if(param.args[0] instanceof char[]) {
+			jsonStr = new String((char[]) param.args[0]);
+		} else {
 			return;
+		}
+		//判断是否是jsonObject
+		jsonStr = jsonStr.trim();
+		if(!jsonStr.startsWith("{")) return;
+		//检验json语法是否正确
+		try {
+			JsonParser.parseString(jsonStr);
+		} catch(Throwable t) {
+			return;
+		}
+		//处理并修改
+		if(param.args[0] instanceof String) {
+			param.args[0] = handleJson(jsonStr);
+		} else if(param.args[0] instanceof char[]) {
+			param.args[0] = handleJson(jsonStr).toCharArray();
 		}
 	}
 

@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.DanmakuHook;
-import de.honoka.android.xposed.qingxin.xposed.hook.ResponseBodyHook;
+import de.honoka.android.xposed.qingxin.xposed.hook.JsonHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.WebViewHook;
 import de.honoka.android.xposed.qingxin.xposed.model.BlockRuleCache;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -325,7 +326,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 
 	private void initAllHook() {
 		initCommentHook();
-		initResponseBodyHook();
+		jsonHook();
 		initWebViewHook();
 		initDanmakuHook();
 	}
@@ -374,29 +375,16 @@ public class XposedMain implements IXposedHookLoadPackage {
 	}
 
 	/**
-	 * OkHttp响应体解析方法hook
+	 * json提取的hook
 	 */
 	@SneakyThrows
-	private void initResponseBodyHook() {
-		ResponseBodyHook methodHook = new ResponseBodyHook();
-		//6.43.0
-		CodeUtils.doIgnoreException(() -> {
-			Class<?> responseBodyClass = lpparam.classLoader.loadClass(
-					"okhttp3.f0");
-			XposedHelpers.findAndHookMethod(responseBodyClass,
-					"A", methodHook);
-			XposedHelpers.findAndHookMethod(responseBodyClass,
-					"c", methodHook);
-		});
-		//6.47.0
-		CodeUtils.doIgnoreException(() -> {
-			Class<?> responseBodyClass = lpparam.classLoader.loadClass(
-					"okhttp3.f0");
-			XposedHelpers.findAndHookMethod(responseBodyClass,
-					"s", methodHook);
-			XposedHelpers.findAndHookMethod(responseBodyClass,
-					"c", methodHook);
-		});
+	private void jsonHook() {
+		Class<?> jsonlexerClass = lpparam.classLoader.loadClass(
+				"com.alibaba.fastjson.parser.JSONLexer");
+		Constructor<?> constructor = jsonlexerClass.getDeclaredConstructor(
+				String.class, int.class);
+		JsonHook jsonHook = new JsonHook();
+		XposedBridge.hookMethod(constructor, jsonHook);
 	}
 
 	@SneakyThrows
