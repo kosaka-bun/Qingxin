@@ -38,6 +38,7 @@ import de.honoka.android.xposed.qingxin.xposed.hook.DanmakuHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.JsonHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.WebViewHook;
 import de.honoka.android.xposed.qingxin.xposed.model.BlockRuleCache;
+import de.honoka.android.xposed.qingxin.xposed.util.XposedUtils;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -51,7 +52,7 @@ public class XposedMain implements IXposedHookLoadPackage {
     /**
      * 加载包后获得的加载参数（包含如包名、应用的类加载器等）
      */
-    private XC_LoadPackage.LoadPackageParam lpparam;
+    public static XC_LoadPackage.LoadPackageParam lpparam;
 
     /**
      * 被hook应用的application对象
@@ -101,7 +102,7 @@ public class XposedMain implements IXposedHookLoadPackage {
         String packageName = "tv.danmaku.bili";
         if(!lpparam.packageName.equals(packageName)) return;
         //加载模块
-        this.lpparam = lpparam;
+        XposedMain.lpparam = lpparam;
         try {
             //region hook获取应用的application
             Method callApplicationOnCreate = Instrumentation.class
@@ -111,19 +112,19 @@ public class XposedMain implements IXposedHookLoadPackage {
             unhookHolder.obj = XposedBridge.hookMethod(callApplicationOnCreate,
                     new XC_MethodHook() {
 
-                        @SneakyThrows
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) {
-                            //hook到后马上取消hook
-                            if(unhookHolder.obj != null)
-                                unhookHolder.obj.unhook();
-                            //获取application
-                            if(hookApplication == null) {
-                                hookApplication = (Application) param.args[0];
-                            }
-                            afterGetApplication();
-                        }
-                    });
+                @SneakyThrows
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) {
+                    //hook到后马上取消hook
+                    if(unhookHolder.obj != null)
+                        unhookHolder.obj.unhook();
+                    //获取application
+                    if(hookApplication == null) {
+                        hookApplication = (Application) param.args[0];
+                    }
+                    afterGetApplication();
+                }
+            });
             //endregion
             /* 初始化所有hook
              * hook的初始化理论上要先于配置与规则的初始化
@@ -435,15 +436,9 @@ public class XposedMain implements IXposedHookLoadPackage {
             XposedBridge.hookMethod(method, danmakuHook);
         }
         //特殊方法的hook（使弹幕使用java层加载而不是native，与chronos有关）
-        XposedHelpers.findAndHookMethod(lpparam.classLoader.loadClass(
-                "tv.danmaku.chronos.wrapper.f"),
-                "f", new XC_MethodHook() {
-
-            @SneakyThrows
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) {
-                param.setResult(false);
-            }
-        });
+        //6.50.0
+        CodeUtils.doIgnoreException(() -> XposedUtils.hookAfter(
+                "tv.danmaku.chronos.wrapper.f", "f",
+                param -> param.setResult(false)));
     }
 }
