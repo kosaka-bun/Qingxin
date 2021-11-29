@@ -33,6 +33,7 @@ import de.honoka.android.xposed.qingxin.provider.QingxinProvider;
 import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
+import de.honoka.android.xposed.qingxin.xposed.hook.ChronosHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.DanmakuHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.JsonHook;
@@ -436,9 +437,10 @@ public class XposedMain implements IXposedHookLoadPackage {
             XposedBridge.hookMethod(method, danmakuHook);
         }
         //特殊方法的hook（使弹幕使用java层加载而不是native，与chronos有关）
-        //6.50.0
-        CodeUtils.doIgnoreException(() -> XposedUtils.hookAfter(
-                "tv.danmaku.chronos.wrapper.f", "f",
-                param -> param.setResult(false)));
+        Class<?> abSourceClass = lpparam.classLoader.loadClass(
+                "com.bilibili.lib.blconfig.internal.ABSource");
+        Method abSourceInvoke = XposedUtils.findMethod(abSourceClass,
+                "invoke");
+        XposedBridge.hookMethod(abSourceInvoke, new ChronosHook());
     }
 }

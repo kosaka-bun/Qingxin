@@ -2,6 +2,23 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<PreferenceCategory
+			android:title="规则管理">
+
+		<Preference
+				android:key="rules_count_text" />
+
+		<Preference
+				android:key="add_rules"
+				android:title="添加屏蔽规则"
+				android:summary="根据关键词或正则表达式" />
+
+		<Preference
+				android:key="remove_rules"
+				android:title="移除屏蔽规则"
+				android:summary="按关键词搜索规则" />
+	</PreferenceCategory>
+
+	<PreferenceCategory
 		android:title="基本配置">
 
 		<CheckBoxPreference
@@ -43,22 +60,5 @@
 			android:title="调试模式"
 			android:summary="在框架控制台和文件中输出调试信息"
 			android:defaultValue="true" />
-	</PreferenceCategory>
-
-	<PreferenceCategory
-		android:title="规则管理">
-
-		<Preference
-			android:key="rules_count_text" />
-
-		<Preference
-			android:key="add_rules"
-			android:title="添加屏蔽规则"
-			android:summary="根据关键词或正则表达式" />
-
-		<Preference
-			android:key="remove_rules"
-			android:title="移除屏蔽规则"
-			android:summary="按关键词搜索规则" />
 	</PreferenceCategory>
 </PreferenceScreen>
