@@ -15,10 +15,6 @@ import de.honoka.android.xposed.qingxin.xposed.XposedMain;
  */
 public class SearchBarFilter implements Function<String, String> {
 
-    public static final SearchBarFilter instance = new SearchBarFilter();
-
-    private SearchBarFilter() {}
-
     @Override
     public String apply(String json) {
         JsonObject jo = JsonParser.parseString(json).getAsJsonObject();

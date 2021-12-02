@@ -37,6 +37,11 @@ public class MainPreference {
 	 */
 	private Boolean testMode;
 
+	/**
+	 * 屏蔽所有推荐话题
+	 */
+	private Boolean blockRecommendedTopics;
+
 	public static MainPreference getDefaultPreference() {
 		return new MainPreference()
 				.setBlockAllMainPagePublicity(false)
@@ -44,6 +49,7 @@ public class MainPreference {
 				.setConvertAllVerticalAv(false)
 				.setShowBlockLog(false)
 				.setToastOnBlock(false)
-				.setTestMode(true);
+				.setTestMode(true)
+				.setBlockRecommendedTopics(false);
 	}
 }

@@ -1,5 +1,7 @@
 package de.honoka.android.xposed.qingxin.xposed.filter;
 
+import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -12,16 +14,10 @@ import java.util.function.Function;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
 
-import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
-
 /**
  * 热搜过滤器
  */
 public class HotSearchFilter implements Function<String, String> {
-
-	public static final HotSearchFilter instance = new HotSearchFilter();
-
-	private HotSearchFilter() {}
 
 	@Override
 	public String apply(String json) {

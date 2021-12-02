@@ -1,64 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceCategory
-			android:title="规则管理">
+    <PreferenceCategory android:title="规则管理">
 
-		<Preference
-				android:key="rules_count_text" />
+        <Preference
+            android:key="rules_count_text" />
 
-		<Preference
-				android:key="add_rules"
-				android:title="添加屏蔽规则"
-				android:summary="根据关键词或正则表达式" />
+        <Preference
+            android:key="add_rules"
+            android:title="添加屏蔽规则"
+            android:summary="根据关键词或正则表达式" />
 
-		<Preference
-				android:key="remove_rules"
-				android:title="移除屏蔽规则"
-				android:summary="按关键词搜索规则" />
-	</PreferenceCategory>
+        <Preference
+            android:key="remove_rules"
+            android:title="移除屏蔽规则"
+            android:summary="按关键词搜索规则" />
+    </PreferenceCategory>
 
-	<PreferenceCategory
-		android:title="基本配置">
+    <PreferenceCategory android:title="基本配置">
 
-		<CheckBoxPreference
-			android:key="block_all_main_page_publicity"
-			android:title="屏蔽所有首页推广"
-			android:summary="创作推广、游戏、大会员、会员购、必剪等"
-			android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="block_all_main_page_publicity"
+            android:title="屏蔽所有首页推广"
+            android:summary="创作推广、游戏、大会员、会员购、必剪等"
+            android:defaultValue="false" />
 
-		<CheckBoxPreference
-			android:key="block_all_hot_search_words"
-			android:title="屏蔽所有热搜"
-			android:summary="热搜列表和搜索框中的内容"
-			android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="block_all_hot_search_words"
+            android:title="屏蔽所有热搜"
+            android:summary="热搜列表和搜索框中的内容"
+            android:defaultValue="false" />
 
-		<CheckBoxPreference
-			android:key="convert_all_vertical_av"
-			android:title="还原所有竖屏视频"
-			android:summary="将抖音风格界面的竖屏视频还原成bilibili风格"
-			android:defaultValue="false" />
-	</PreferenceCategory>
+        <CheckBoxPreference
+            android:key="convert_all_vertical_av"
+            android:title="还原所有竖屏视频"
+            android:summary="将抖音风格界面的竖屏视频还原成bilibili风格"
+            android:defaultValue="false" />
 
-	<PreferenceCategory
-		android:title="日志与提示">
+        <CheckBoxPreference
+            android:key="block_recommended_topics"
+            android:title="屏蔽所有推荐话题"
+            android:summary="动态页面里的推荐话题"
+            android:defaultValue="false" />
+    </PreferenceCategory>
 
-		<CheckBoxPreference
-			android:key="show_block_log"
-			android:title="输出拦截日志"
-			android:summary="在框架控制台输出拦截日志"
-			android:defaultValue="false" />
+    <PreferenceCategory android:title="日志与提示">
 
-		<CheckBoxPreference
-			android:key="toast_on_block"
-			android:title="拦截时发出气泡信息"
-			android:summary="显示拦截条数等信息"
-			android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="show_block_log"
+            android:title="输出拦截日志"
+            android:summary="在框架控制台输出拦截日志"
+            android:defaultValue="false" />
 
-		<CheckBoxPreference
-			android:key="test_mode"
-			android:title="调试模式"
-			android:summary="在框架控制台和文件中输出调试信息"
-			android:defaultValue="true" />
-	</PreferenceCategory>
+        <CheckBoxPreference
+            android:key="toast_on_block"
+            android:title="拦截时发出气泡信息"
+            android:summary="显示拦截条数等信息"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="test_mode"
+            android:title="调试模式"
+            android:summary="在框架控制台和文件中输出调试信息"
+            android:defaultValue="true" />
+    </PreferenceCategory>
 </PreferenceScreen>

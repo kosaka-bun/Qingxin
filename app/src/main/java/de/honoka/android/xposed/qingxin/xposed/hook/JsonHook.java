@@ -18,6 +18,15 @@ import lombok.SneakyThrows;
  */
 public class JsonHook extends LateInitHook {
 
+	/**
+	 * 处理json时需要使用的过滤器
+	 */
+	List<Function<String, String>> filters = Arrays.asList(
+			new MainPageFilter(),
+			new HotSearchFilter(),
+			new SearchBarFilter()
+	);
+
 	@SneakyThrows
 	@Override
 	public void before(MethodHookParam param) {
@@ -52,16 +61,11 @@ public class JsonHook extends LateInitHook {
 	 */
 	private String handleJson(String jsonStr) {
 		//构建操作列表，依次操作，一个成功即返回过滤后的值
-		List<Function<String, String>> functions = Arrays.asList(
-				MainPageFilter.instance,
-				HotSearchFilter.instance,
-				SearchBarFilter.instance
-		);
 		//由于不能确定json属于哪种数据，所以将所有过滤规则都试一遍，取有效的那一个
 		//所以过滤器一定不能在一般情况下抛出异常
-		for(Function<String, String> function : functions) {
+		for(Function<String, String> filter : filters) {
 			try {
-				return function.apply(jsonStr);
+				return filter.apply(jsonStr);
 			} catch(NullPointerException | ClassCastException ignore) {
 				//ignore
 				//Logger.testLog(ExceptionUtils.transfer(ignore));

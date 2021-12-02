@@ -37,7 +37,7 @@ public class AddRuleActivity extends AppCompatActivity {
 		findViewById(R.id.add_button).setOnClickListener(onAddListener);
 	}
 
-	private View.OnClickListener onAddListener = view -> {
+	private final View.OnClickListener onAddListener = view -> {
 		//设置为不可点击
 		view.setEnabled(false);
 		//规则内容

@@ -19,8 +19,6 @@ import de.honoka.android.xposed.qingxin.xposed.XposedMain;
  */
 public class MainPageFilter implements Function<String, String> {
 
-	public static final MainPageFilter instance = new MainPageFilter();
-
 	//region 首页推荐项左下角的图标，也就是“UP”或者粉色手机图标的图片链接
 
 	private String gotoIconUrl;
@@ -28,8 +26,6 @@ public class MainPageFilter implements Function<String, String> {
 	private String gotoIconNightUrl;
 
 	//endregion
-
-	private MainPageFilter() {}
 
 	@Override
 	public String apply(String json) {

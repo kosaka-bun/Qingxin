@@ -50,7 +50,8 @@ public class MainPreferenceFragment extends PreferenceFragment {
 		addPreferencesFromResource(R.xml.preference_main);
 		//从文件中加载配置信息
 		PreferenceScreen preferenceScreen = getPreferenceScreen();
-		props = (Map<String, Object>) preferenceScreen.getSharedPreferences().getAll();
+		props = (Map<String, Object>) preferenceScreen.getSharedPreferences()
+				.getAll();
 		//加载后先直接写出到文件
 		writeOutProps(Singletons.gson.toJson(props));
 		//为所有配置项注册配置修改监听器

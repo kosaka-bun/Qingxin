@@ -1,5 +1,6 @@
 package de.honoka.android.xposed.qingxin.xposed.util;
 
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,18 @@ public class XposedUtils {
     public static void hookAfter(String className, String methodName,
             Consumer<XC_MethodHook.MethodHookParam> hooker) {
         hookMethod(className, methodName, new XC_MethodHook() {
+
+            @SneakyThrows
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                hooker.accept(param);
+            }
+        });
+    }
+
+    public static void hookAfter(Member member,
+            Consumer<XC_MethodHook.MethodHookParam> hooker) {
+        XposedBridge.hookMethod(member, new XC_MethodHook() {
 
             @SneakyThrows
             @Override

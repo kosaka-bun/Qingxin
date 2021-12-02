@@ -12,8 +12,8 @@ android {
         //noinspection OldTargetApi
         targetSdkVersion 29
         //更改版本
-        versionCode 9
-        versionName "1.0.0-snapshot-9"
+        versionCode 10
+        versionName "1.0.0-snapshot-10"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -37,6 +37,7 @@ import de.honoka.android.xposed.qingxin.xposed.hook.ChronosHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.DanmakuHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.JsonHook;
+import de.honoka.android.xposed.qingxin.xposed.hook.RecommendedTopicHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.WebViewHook;
 import de.honoka.android.xposed.qingxin.xposed.model.BlockRuleCache;
 import de.honoka.android.xposed.qingxin.xposed.util.XposedUtils;
@@ -86,7 +87,7 @@ public class XposedMain implements IXposedHookLoadPackage {
     /**
      * 模块是否已初始化完成，用于给LateInitHook判断是否执行hook逻辑
      */
-    private volatile static boolean inited = false;
+    private static volatile boolean inited = false;
 
     /**
      * 用于保存Unhook对象，便于在Hook到后取消Hook
@@ -331,6 +332,7 @@ public class XposedMain implements IXposedHookLoadPackage {
         jsonHook();
         initWebViewHook();
         initDanmakuHook();
+        initRecommendedTopicHook();
     }
 
     /**
@@ -442,5 +444,16 @@ public class XposedMain implements IXposedHookLoadPackage {
         Method abSourceInvoke = XposedUtils.findMethod(abSourceClass,
                 "invoke");
         XposedBridge.hookMethod(abSourceInvoke, new ChronosHook());
+    }
+
+    /**
+     * 屏蔽所有推荐话题（动态页）
+     */
+    @SneakyThrows
+    private void initRecommendedTopicHook() {
+        Class<?> clazz = lpparam.classLoader.loadClass("com.bapis" +
+                ".bilibili.app.dynamic.v2.DynAllReply");
+        XposedBridge.hookMethod(clazz.getMethod("getTopicList"),
+                new RecommendedTopicHook());
     }
 }
