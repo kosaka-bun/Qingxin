@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "de.honoka.android.xposed.qingxin"
@@ -41,6 +41,7 @@ dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
     compileOnly 'de.robv.android.xposed:api:82:sources'
     implementation 'com.google.code.gson:gson:2.8.6'
+    //noinspection AnnotationProcessorOnCompilePath
     compileOnly 'org.projectlombok:lombok:1.18.20'
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
     implementation 'com.j256.ormlite:ormlite-android:5.1'

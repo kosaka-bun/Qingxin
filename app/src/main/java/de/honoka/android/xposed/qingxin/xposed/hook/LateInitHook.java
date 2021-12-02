@@ -1,6 +1,6 @@
 package de.honoka.android.xposed.qingxin.xposed.hook;
 
-import de.honoka.android.xposed.qingxin.xposed.XposedMain;
+import de.honoka.android.xposed.qingxin.xposed.init.HookInit;
 import de.robv.android.xposed.XC_MethodHook;
 
 /**
@@ -14,11 +14,11 @@ public abstract class LateInitHook extends XC_MethodHook {
 
 	@Override
 	protected void beforeHookedMethod(MethodHookParam param) {
-		if(XposedMain.isInited()) before(param);
+		if(HookInit.inited) before(param);
 	}
 
 	@Override
 	protected void afterHookedMethod(MethodHookParam param) {
-		if(XposedMain.isInited()) after(param);
+		if(HookInit.inited) after(param);
 	}
 }

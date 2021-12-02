@@ -12,17 +12,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import de.honoka.android.xposed.qingxin.common.Constant;
@@ -33,18 +28,12 @@ import de.honoka.android.xposed.qingxin.provider.QingxinProvider;
 import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
-import de.honoka.android.xposed.qingxin.xposed.hook.ChronosHook;
-import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
-import de.honoka.android.xposed.qingxin.xposed.hook.DanmakuHook;
-import de.honoka.android.xposed.qingxin.xposed.hook.JsonHook;
-import de.honoka.android.xposed.qingxin.xposed.hook.RecommendedTopicHook;
-import de.honoka.android.xposed.qingxin.xposed.hook.WebViewHook;
+import de.honoka.android.xposed.qingxin.xposed.init.HookInit;
 import de.honoka.android.xposed.qingxin.xposed.model.BlockRuleCache;
-import de.honoka.android.xposed.qingxin.xposed.util.XposedUtils;
+import de.honoka.android.xposed.qingxin.xposed.util.Holder;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.SneakyThrows;
 
@@ -84,18 +73,7 @@ public class XposedMain implements IXposedHookLoadPackage {
     private final Type blockRuleListType =
             new TypeToken<List<BlockRule>>() {}.getType();
 
-    /**
-     * 模块是否已初始化完成，用于给LateInitHook判断是否执行hook逻辑
-     */
-    private static volatile boolean inited = false;
-
-    /**
-     * 用于保存Unhook对象，便于在Hook到后取消Hook
-     */
-    private static class Holder<T> {
-
-        public T obj;
-    }
+    private final HookInit hookInit = new HookInit();
 
     @SneakyThrows
     @Override
@@ -132,7 +110,7 @@ public class XposedMain implements IXposedHookLoadPackage {
              * hook的初始化理论上要先于配置与规则的初始化
              * 若被hook的方法在配置初始化完成之前被调用，则LateInitHook类
              * 会根据init的值忽略掉本次调用，不执行hook逻辑 */
-            initAllHook();
+            hookInit.initAllHook();
             Logger.testLogForce("hook加载完成");
         } catch(Throwable t) {
             reportProblem("hook方法时出现问题，请查看日志", t);
@@ -144,13 +122,13 @@ public class XposedMain implements IXposedHookLoadPackage {
      */
     private void afterGetApplication() {
         //初始化，构建初始化逻辑，指定初始化的信息报告逻辑
-        if(inited) return;
+        if(HookInit.inited) return;
         Logger.testLogForce("得到Application对象，开始加载配置与规则");
         //不在新线程中进行初始化可能会使APP闪退
         Runnable initAction = () -> {
             try {
                 init();
-                inited = true;
+                HookInit.inited = true;
                 if(mainPreference.getTestMode()) {
                     Logger.testLog("清心模块加载成功");
                     Logger.toast("清心模块加载成功", Toast.LENGTH_SHORT);
@@ -257,10 +235,6 @@ public class XposedMain implements IXposedHookLoadPackage {
         registerUpdateReceiver();
     }
 
-    public static boolean isInited() {
-        return inited;
-    }
-
     /**
      * 用Toast、日志和文件三种方式报告问题
      */
@@ -325,135 +299,5 @@ public class XposedMain implements IXposedHookLoadPackage {
         if(blockRule.getDongtai())
             blockRuleCache.getDongtaiList().add(blockRule);
         Logger.testLog("收到新的规则：" + blockRule.toString());
-    }
-
-    private void initAllHook() {
-        initCommentHook();
-        jsonHook();
-        initWebViewHook();
-        initDanmakuHook();
-        initRecommendedTopicHook();
-    }
-
-    /**
-     * 评论拦截初始化
-     */
-    @SneakyThrows
-    private void initCommentHook() {
-        //列出要hook的类
-        List<String> classNames = Arrays.asList(
-                "MainListReply", "ReplyInfo", "DialogListReply");
-        //拼接类名，获取class对象
-        List<Class<?>> classes = new ArrayList<>();
-        for(String className : classNames) {
-            //加载类
-            String fullClassName = "com.bapis.bilibili.main.community" +
-                    ".reply.v1." + className;
-            Class<?> clazz = lpparam.classLoader.loadClass(fullClassName);
-            //添加到列表
-            classes.add(clazz);
-        }
-        //从这些类中获取要hook的方法
-        List<Method> methods = new ArrayList<>();
-        //特殊的方法名（主要是一些获取置顶评论的方法，需要对这些置顶评论进行判断）
-        List<String> specialMethodNames = Arrays.asList(
-                "getAdminTop", "getReplies", "getTopReplies",
-                "getUpTop", "getVoteTop"
-        );
-        for(Class<?> aClass : classes) {
-            //列出这些类中的所有方法
-            for(Method m : aClass.getDeclaredMethods()) {
-                //将返回值类型为List的方法，或特殊方法名的方法添加到列表中
-                if(m.getReturnType().equals(List.class) ||
-                        specialMethodNames.contains(m.getName())) {
-                    methods.add(m);
-                }
-            }
-        }
-        //初始化拦截逻辑
-        CommentHook methodHook = new CommentHook();
-        //为每一个要hook的方法绑定逻辑
-        for(Method m : methods) {
-            XposedBridge.hookMethod(m, methodHook);
-        }
-    }
-
-    /**
-     * json提取的hook
-     */
-    @SneakyThrows
-    private void jsonHook() {
-        Class<?> jsonlexerClass = lpparam.classLoader.loadClass(
-                "com.alibaba.fastjson.parser.JSONLexer");
-        Constructor<?> constructor = jsonlexerClass.getDeclaredConstructor(
-                String.class, int.class);
-        JsonHook jsonHook = new JsonHook();
-        XposedBridge.hookMethod(constructor, jsonHook);
-    }
-
-    @SneakyThrows
-    private void initWebViewHook() {
-        XposedHelpers.findAndHookMethod(WebView.class,
-                "setWebViewClient", WebViewClient.class,
-                new WebViewHook());
-    }
-
-    /**
-     * 弹幕拦截
-     */
-    @SneakyThrows
-    private void initDanmakuHook() {
-        //region 要Hook的类名
-        List<String> classNames = Arrays.asList(
-                "com.bapis.bilibili.broadcast.message.main.DanmukuEvent",
-                "com.bapis.bilibili.broadcast.message.tv.DmSegLiveReply",
-                "com.bapis.bilibili.community.service.dm.v1.DmSegMobileReply",
-                "com.bapis.bilibili.community.service.dm.v1.DmSegOttReply",
-                "com.bapis.bilibili.community.service.dm.v1.DmSegSDKReply",
-                //"com.bapis.bilibili.community.service.dm.v1.DmViewReply",
-                //"com.bapis.bilibili.community.service.dm.v1.DmWebViewReply",
-                "com.bapis.bilibili.tv.interfaces.dm.v1.DmSegMobileReply",
-                //"com.bapis.bilibili.tv.interfaces.dm.v1.DmViewReply",
-                "com.bilibili.playerbizcommon.api.PlayerDanmukuReplyListInfo"
-        );
-        //endregion
-        //根据类名获得类对象
-        List<Class<?>> classes = new ArrayList<>();
-        for(String className : classNames) {
-            classes.add(lpparam.classLoader.loadClass(className));
-        }
-        //拿到这些类中的返回值类型为List的对象
-        List<Method> methods = new ArrayList<>();
-        for(Class<?> aClass : classes) {
-            //遍历某个类中的所有方法，将返回值类型为List的方法添加到列表中
-            Method[] declaredMethods = aClass.getDeclaredMethods();
-            for(Method declaredMethod : declaredMethods) {
-                if(declaredMethod.getReturnType().equals(List.class)) {
-                    methods.add(declaredMethod);
-                }
-            }
-        }
-        //为这些方法绑定Hook
-        DanmakuHook danmakuHook = new DanmakuHook();
-        for(Method method : methods) {
-            XposedBridge.hookMethod(method, danmakuHook);
-        }
-        //特殊方法的hook（使弹幕使用java层加载而不是native，与chronos有关）
-        Class<?> abSourceClass = lpparam.classLoader.loadClass(
-                "com.bilibili.lib.blconfig.internal.ABSource");
-        Method abSourceInvoke = XposedUtils.findMethod(abSourceClass,
-                "invoke");
-        XposedBridge.hookMethod(abSourceInvoke, new ChronosHook());
-    }
-
-    /**
-     * 屏蔽所有推荐话题（动态页）
-     */
-    @SneakyThrows
-    private void initRecommendedTopicHook() {
-        Class<?> clazz = lpparam.classLoader.loadClass("com.bapis" +
-                ".bilibili.app.dynamic.v2.DynAllReply");
-        XposedBridge.hookMethod(clazz.getMethod("getTopicList"),
-                new RecommendedTopicHook());
     }
 }
