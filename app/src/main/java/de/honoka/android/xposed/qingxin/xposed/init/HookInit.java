@@ -16,6 +16,7 @@ import de.honoka.android.xposed.qingxin.xposed.hook.DanmakuHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.DongtaiHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.JsonHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.RecommendedTopicHook;
+import de.honoka.android.xposed.qingxin.xposed.hook.VideoRelateHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.WebViewHook;
 import de.honoka.android.xposed.qingxin.xposed.util.XposedUtils;
 import de.robv.android.xposed.XposedBridge;
@@ -36,7 +37,10 @@ public class HookInit {
         initDanmakuHook();
         initRecommendedTopicHook();
         initDongtaiHook();
+        initVideoRelateHook();
     }
+
+
 
     /**
      * 评论拦截初始化
@@ -173,5 +177,19 @@ public class HookInit {
                 "getListList"), dongtaiHook);
         XposedBridge.hookMethod(XposedUtils.findMethod(clazz,
                 "getListOrBuilderList"), dongtaiHook);
+    }
+
+    /**
+     * 视频播放页下方的推荐视频拦截
+     */
+    @SneakyThrows
+    private void initVideoRelateHook() {
+        Class<?> clazz = XposedMain.lpparam.classLoader.loadClass(
+                "com.bapis.bilibili.app.view.v1.ViewReply");
+        VideoRelateHook videoRelateHook = new VideoRelateHook();
+        XposedBridge.hookMethod(XposedUtils.findMethod(clazz,
+                "getRelatesList"), videoRelateHook);
+        XposedBridge.hookMethod(XposedUtils.findMethod(clazz,
+                "getRelatesOrBuilderList"), videoRelateHook);
     }
 }
