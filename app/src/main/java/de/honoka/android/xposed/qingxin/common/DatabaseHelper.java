@@ -18,7 +18,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		super(context, DATABASE_NAME, null, 1);
 	}
 
-	private static Class<?>[] entityClasses = {
+	private static final Class<?>[] entityClasses = {
 			BlockRule.class
 	};
 

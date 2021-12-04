@@ -52,8 +52,8 @@ public class BlockRuleCache {
 				}
 				//按正则表达式
 				case BlockRule.RuleType.PATTERN: {
-					if(PatternUtils.containsMatch(str,
-							blockRule.getContent())) {
+					if(PatternUtils.containsMatch(str, "(?i)(" +
+							blockRule.getContent() + ")")) {
 						return true;
 					}
 					break;

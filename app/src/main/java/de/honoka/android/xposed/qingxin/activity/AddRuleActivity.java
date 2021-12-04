@@ -57,7 +57,8 @@ public class AddRuleActivity extends AppCompatActivity {
 			type = BlockRule.RuleType.PATTERN;
 			//验证正则表达式
 			try {
-				Pattern.compile(content);
+				//正则表达式不区分大小写
+				Pattern.compile("(?i)(" + content + ")");
 			} catch(PatternSyntaxException pse) {
 				//语法错误
 				Toast.makeText(this, "正则表达式语法不正确",
@@ -65,8 +66,6 @@ public class AddRuleActivity extends AppCompatActivity {
 				view.setEnabled(true);
 				return;
 			}
-			//正则表达式不区分大小写
-			content = "(?i)(" + content + ")";
 		} else {
 			//未选择类型
 			Toast.makeText(this, "请选择类型",
