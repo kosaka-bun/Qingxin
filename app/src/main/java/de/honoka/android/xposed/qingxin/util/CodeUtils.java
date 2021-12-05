@@ -44,4 +44,11 @@ public class CodeUtils {
 				builder.charAt(0)));
 		return builder.toString();
 	}
+
+	public static boolean isAllFalse(boolean... values) {
+		for(boolean value : values) {
+			if(value) return false;
+		}
+		return true;
+	}
 }

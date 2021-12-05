@@ -20,6 +20,7 @@ import de.honoka.android.xposed.qingxin.common.Singletons;
 import de.honoka.android.xposed.qingxin.dao.BlockRuleDao;
 import de.honoka.android.xposed.qingxin.entity.BlockRule;
 import de.honoka.android.xposed.qingxin.util.AndroidUtils;
+import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.NoFeedTextWatcher;
 
 public class AddRuleActivity extends AppCompatActivity {
@@ -98,6 +99,14 @@ public class AddRuleActivity extends AppCompatActivity {
 		//动态
 		boolean dongtai = ((CheckBox) findViewById(R.id.dongtai_checkbox))
 				.isChecked();
+		//判断是否全不选
+		if(CodeUtils.isAllFalse(videoTitle, videoSubArea, videoChannel,
+				username, comment, danmaku, hotSearchWord, dongtai)) {
+			Toast.makeText(this, "请至少选择一个作用域",
+					Toast.LENGTH_LONG).show();
+			view.setEnabled(true);
+			return;
+		}
 		//endregion
 		//region 绑定数据，保存数据
 		BlockRule blockRule = new BlockRule()

@@ -29,4 +29,14 @@ object Constant {
 		const val JQUERY = "https://apps.bdimg.com/libs/jquery" +
 				"/2.1.4/jquery.min.js"
 	}
+
+	/**
+	 * 权限请求、activity结果请求的请求码
+	 */
+	object RequestCode {
+
+		const val IMPORT_RULES_PERMISSION = 10000;
+
+		const val IMPORT_RULES_FILE_PICK = 10001;
+	}
 }

@@ -15,6 +15,16 @@
             android:key="remove_rules"
             android:title="移除屏蔽规则"
             android:summary="按关键词搜索规则" />
+
+        <Preference
+            android:key="import_rules"
+            android:title="导入屏蔽规则"
+            android:summary="从选择的文件中导入规则" />
+
+        <Preference
+            android:key="export_rules"
+            android:title="导出屏蔽规则"
+            android:summary="导出屏蔽规则到应用数据目录下" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="基本配置">

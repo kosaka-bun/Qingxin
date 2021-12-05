@@ -12,8 +12,8 @@ android {
         //noinspection OldTargetApi
         targetSdkVersion 29
         //更改版本
-        versionCode 11
-        versionName "1.0.0-RC"
+        versionCode 12
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -49,6 +49,7 @@ dependencies {
     compileOnly 'de.robv.android.xposed:api:82:sources'
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'commons-io:commons-io:2.11.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
