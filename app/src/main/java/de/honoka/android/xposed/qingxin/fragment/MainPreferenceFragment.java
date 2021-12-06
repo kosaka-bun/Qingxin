@@ -232,7 +232,11 @@ public class MainPreferenceFragment extends PreferenceFragment {
             //添加权限处理完成后的回调
             Runnable callback = (CodeUtils.ThrowsRunnable) () -> {
                 //判断是否已拥有权限
-                if(!filePermissionUtils.hasPermissions()) return;
+                if(!filePermissionUtils.hasPermissions()) {
+                    Toast.makeText(mainActivity, "导入规则需要文件读取权限，" +
+                            "请先为清心授予文件读取权限", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 openFilePickerForImport();
                 //移除回调
                 mainActivity.onPermissionsResultCallBacks.remove(Constant

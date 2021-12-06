@@ -29,6 +29,11 @@ android {
         targetCompatibility = 1.8
     }
 
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "Qingxin_${variant.versionName}.apk"
+        }
+    }
 }
 
 dependencies {
