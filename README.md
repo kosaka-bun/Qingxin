@@ -1,6 +1,6 @@
 # 清心
 [![License](https://img.shields.io/github/license/kosaka-bun/Qingxin?label=License&color=brightgreen)](https://github.com/kosaka-bun/Qingxin/blob/master/LICENSE)
-![Android](https://img.shields.io/badge/Android-7.0-green?color=brightgreen&logo=Android)
+![Android](https://img.shields.io/badge/Android-7.0%2B-brightgreen?logo=Android)
 ![GitHub Stars](https://img.shields.io/github/stars/kosaka-bun/Qingxin?label=Stars&logo=GitHub)
 ![Forks](https://img.shields.io/github/forks/kosaka-bun/Qingxin?label=Forks&logo=GitHub)
 [![Release](https://img.shields.io/github/release/kosaka-bun/Qingxin.svg?label=Release&logo=GitHub)](https://github.com/kosaka-bun/Qingxin/releases)
@@ -11,6 +11,8 @@
 本项目完全开源，遵循Apache-2.0 License，您可以检查它的行为，或基于它进行二次开发。
 
 ## 使用
+清心支持的最低Android版本为Android 7.0，最低bilibili app版本为6.43.0。
+
 您可以[点击此处](https://github.com/kosaka-bun/Qingxin/releases/latest)下载最新版本的清心模块。
 
 使用之前，您需要了解与Xposed框架有关的前置知识，了解如何使用Xposed模块。
