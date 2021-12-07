@@ -23,6 +23,7 @@ allprojects {
         mavenCentral()
         google()
 
+        maven { url "https://api.xposed.info/" }
     }
 }
 

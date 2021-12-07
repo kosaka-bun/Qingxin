@@ -231,6 +231,9 @@ public class MainPreferenceFragment extends PreferenceFragment {
         } else {
             //添加权限处理完成后的回调
             Runnable callback = (CodeUtils.ThrowsRunnable) () -> {
+                //移除回调
+                mainActivity.onPermissionsResultCallBacks.remove(Constant
+                        .RequestCode.IMPORT_RULES_PERMISSION);
                 //判断是否已拥有权限
                 if(!filePermissionUtils.hasPermissions()) {
                     Toast.makeText(mainActivity, "导入规则需要文件读取权限，" +
@@ -238,9 +241,6 @@ public class MainPreferenceFragment extends PreferenceFragment {
                     return;
                 }
                 openFilePickerForImport();
-                //移除回调
-                mainActivity.onPermissionsResultCallBacks.remove(Constant
-                        .RequestCode.IMPORT_RULES_PERMISSION);
             };
             mainActivity.onPermissionsResultCallBacks.put(Constant.RequestCode
                     .IMPORT_RULES_PERMISSION, callback);
@@ -307,11 +307,14 @@ public class MainPreferenceFragment extends PreferenceFragment {
         //添加文件选择后的回调
         mainActivity.onActivityResultCallBacks.put(Constant.RequestCode
                 .IMPORT_RULES_FILE_PICK, intent -> {
+            //移除回调
+            mainActivity.onActivityResultCallBacks.remove(Constant.RequestCode
+                    .IMPORT_RULES_FILE_PICK);
             //这里不能用Logger来发出toast信息！Logger是使用被hook的应用来发送的
             //而这里在执行的时候，并没有启动被hook的应用
             if(intent == null) {
-                Toast.makeText(mainActivity, "未选择文件", Toast.LENGTH_LONG)
-                        .show();
+                Toast.makeText(mainActivity, "未选择文件",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
             //读取文件
@@ -327,8 +330,8 @@ public class MainPreferenceFragment extends PreferenceFragment {
                 Type type = new TypeToken<List<BlockRule>>() {}.getType();
                 ruleList = Singletons.gson.fromJson(text, type);
             } catch(Throwable t) {
-                Log.e("Qingxin", "无法解析选择的文件", t);
-                Toast.makeText(mainActivity, "无法解析选择的文件",
+                Log.e("Qingxin", "无法解析所选择的文件", t);
+                Toast.makeText(mainActivity, "无法解析所选择的文件",
                         Toast.LENGTH_LONG).show();
                 return;
             }
