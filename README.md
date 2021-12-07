@@ -1,6 +1,7 @@
 # 清心
 [![License](https://img.shields.io/github/license/kosaka-bun/Qingxin?label=License&color=brightgreen)](https://github.com/kosaka-bun/Qingxin/blob/master/LICENSE)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-brightgreen?logo=Android)
+![bilibili](https://img.shields.io/badge/bilibili-6.43.0%2B-brightgreen?logo=Bilibili)
 ![GitHub Stars](https://img.shields.io/github/stars/kosaka-bun/Qingxin?label=Stars&logo=GitHub)
 ![Forks](https://img.shields.io/github/forks/kosaka-bun/Qingxin?label=Forks&logo=GitHub)
 [![Release](https://img.shields.io/github/release/kosaka-bun/Qingxin.svg?label=Release&logo=GitHub)](https://github.com/kosaka-bun/Qingxin/releases)
