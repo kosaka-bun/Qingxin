@@ -42,6 +42,11 @@ public class MainPreference {
 	 */
 	private Boolean blockRecommendedTopics;
 
+	/**
+	 * 禁用播放器长按加速
+	 */
+	private Boolean disablePlayerLongPress;
+
 	public static MainPreference getDefaultPreference() {
 		return new MainPreference()
 				.setBlockAllMainPagePublicity(false)
@@ -50,6 +55,7 @@ public class MainPreference {
 				.setShowBlockLog(false)
 				.setToastOnBlock(false)
 				.setTestMode(true)
-				.setBlockRecommendedTopics(false);
+				.setBlockRecommendedTopics(false)
+				.setDisablePlayerLongPress(false);
 	}
 }

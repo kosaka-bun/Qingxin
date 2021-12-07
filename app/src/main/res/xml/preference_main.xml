@@ -42,15 +42,24 @@
             android:defaultValue="false" />
 
         <CheckBoxPreference
+            android:key="block_recommended_topics"
+            android:title="屏蔽所有推荐话题"
+            android:summary="动态页面里的推荐话题"
+            android:defaultValue="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="辅助功能">
+
+        <CheckBoxPreference
             android:key="convert_all_vertical_av"
             android:title="还原所有竖屏视频"
             android:summary="将抖音风格界面的竖屏视频还原成bilibili风格"
             android:defaultValue="false" />
 
         <CheckBoxPreference
-            android:key="block_recommended_topics"
-            android:title="屏蔽所有推荐话题"
-            android:summary="动态页面里的推荐话题"
+            android:key="disable_player_long_press"
+            android:title="禁用播放器长按加速"
+            android:summary="禁用播放器长按开启倍速播放的功能"
             android:defaultValue="false" />
     </PreferenceCategory>
 

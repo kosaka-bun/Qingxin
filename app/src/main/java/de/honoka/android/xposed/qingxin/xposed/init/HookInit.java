@@ -3,11 +3,16 @@ package de.honoka.android.xposed.qingxin.xposed.init;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
 import de.honoka.android.xposed.qingxin.xposed.hook.ChronosHook;
@@ -19,6 +24,7 @@ import de.honoka.android.xposed.qingxin.xposed.hook.RecommendedTopicHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.VideoRelateHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.WebViewHook;
 import de.honoka.android.xposed.qingxin.xposed.util.XposedUtils;
+import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import lombok.SneakyThrows;
@@ -30,21 +36,27 @@ public class HookInit {
      */
     public static volatile boolean inited = false;
 
+    /**
+     * 与initAllHook方法结合使用，initAllHook方法会执行本类中所有附带了此注解的方法
+     */
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    private @interface InitializerMethod {}
+
+    @SneakyThrows
     public void initAllHook() {
-        initCommentHook();
-        jsonHook();
-        initWebViewHook();
-        initDanmakuHook();
-        initRecommendedTopicHook();
-        initDongtaiHook();
-        initVideoRelateHook();
+        for(Method method : this.getClass().getDeclaredMethods()) {
+            if(method.isAnnotationPresent(InitializerMethod.class)) {
+                method.setAccessible(true);
+                method.invoke(this);
+            }
+        }
     }
-
-
 
     /**
      * 评论拦截初始化
      */
+    @InitializerMethod
     @SneakyThrows
     private void initCommentHook() {
         //列出要hook的类
@@ -89,6 +101,7 @@ public class HookInit {
     /**
      * json提取的hook
      */
+    @InitializerMethod
     @SneakyThrows
     private void jsonHook() {
         Class<?> jsonlexerClass = XposedMain.lpparam.classLoader.loadClass(
@@ -99,6 +112,7 @@ public class HookInit {
         XposedBridge.hookMethod(constructor, jsonHook);
     }
 
+    @InitializerMethod
     @SneakyThrows
     private void initWebViewHook() {
         XposedHelpers.findAndHookMethod(WebView.class,
@@ -109,6 +123,7 @@ public class HookInit {
     /**
      * 弹幕拦截
      */
+    @InitializerMethod
     @SneakyThrows
     private void initDanmakuHook() {
         //region 要Hook的类名
@@ -157,6 +172,7 @@ public class HookInit {
     /**
      * 屏蔽所有推荐话题（动态页）
      */
+    @InitializerMethod
     @SneakyThrows
     private void initRecommendedTopicHook() {
         Class<?> clazz = XposedMain.lpparam.classLoader.loadClass(
@@ -168,6 +184,7 @@ public class HookInit {
     /**
      * 动态拦截
      */
+    @InitializerMethod
     @SneakyThrows
     private void initDongtaiHook() {
         Class<?> clazz = XposedMain.lpparam.classLoader.loadClass(
@@ -182,6 +199,7 @@ public class HookInit {
     /**
      * 视频播放页下方的推荐视频拦截
      */
+    @InitializerMethod
     @SneakyThrows
     private void initVideoRelateHook() {
         Class<?> clazz = XposedMain.lpparam.classLoader.loadClass(
@@ -191,5 +209,30 @@ public class HookInit {
                 "getRelatesList"), videoRelateHook);
         XposedBridge.hookMethod(XposedUtils.findMethod(clazz,
                 "getRelatesOrBuilderList"), videoRelateHook);
+    }
+
+    /**
+     * 播放器长按事件回调Hook
+     */
+    @InitializerMethod
+    @SneakyThrows
+    private void initPlayerLongPressHook() {
+        Class<?> clazz = XposedMain.lpparam.classLoader.loadClass("tv." +
+                "danmaku.biliplayerimpl.gesture.GestureService$mTouchListener$1");
+        Method method = XposedUtils.findMethod(clazz, "onLongPress");
+        XposedBridge.hookMethod(method, new XC_MethodReplacement() {
+
+            @SneakyThrows
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam param) {
+                //late init
+                if(inited && !Objects.equals(XposedMain.mainPreference
+                        .getDisablePlayerLongPress(), true)) {
+                    XposedBridge.invokeOriginalMethod(param.method,
+                            param.thisObject, param.args);
+                }
+                return null;
+            }
+        });
     }
 }
