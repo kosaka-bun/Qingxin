@@ -11,46 +11,46 @@ import de.honoka.android.xposed.qingxin.xposed.webview.handler.ColumnHandler;
  */
 public class ExampleUnitTest {
 
-	@Test
-	public void test2() {
-		StringBuilder builder = new StringBuilder(ColumnHandler.class
-				.getSimpleName());
-		builder.setCharAt(0, Character.toLowerCase(builder.charAt(0)));
-		System.out.println(builder);
-	}
+    @Test
+    public void test2() {
+        StringBuilder builder = new StringBuilder(ColumnHandler.class
+                .getSimpleName());
+        builder.setCharAt(0, Character.toLowerCase(builder.charAt(0)));
+        System.out.println(builder);
+    }
 
-	//@Test
-	public void test1() {
-		Thread thread = new Thread(() -> {
-			for(; ; ) {
-				try {
-					System.out.println("子线程运行...");
-					Thread.sleep(1000);
-				} catch(InterruptedException e) {
-					//ignore
-				}
-			}
-		});
-		thread.start();
-		try {
-			System.out.println("开始等待");
-			thread.join(5000);
-			System.out.println("等待完成");
-			thread.stop();
-			for(; ; ) {
-				try {
-					Thread.sleep(1000);
-				} catch(InterruptedException e) {
-					//ignore
-				}
-			}
-		} catch(InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+    //@Test
+    public void test1() {
+        Thread thread = new Thread(() -> {
+            for(; ; ) {
+                try {
+                    System.out.println("子线程运行...");
+                    Thread.sleep(1000);
+                } catch(InterruptedException e) {
+                    //ignore
+                }
+            }
+        });
+        thread.start();
+        try {
+            System.out.println("开始等待");
+            thread.join(5000);
+            System.out.println("等待完成");
+            thread.stop();
+            for(; ; ) {
+                try {
+                    Thread.sleep(1000);
+                } catch(InterruptedException e) {
+                    //ignore
+                }
+            }
+        } catch(InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-	//@Test
-	//public void addition_isCorrect() {
-	//	assertEquals(4, 2 + 2);
-	//}
+    //@Test
+    //public void addition_isCorrect() {
+    //	assertEquals(4, 2 + 2);
+    //}
 }

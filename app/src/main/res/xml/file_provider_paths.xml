@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-path path="./Android/data/de.honoka.android.xposed.qingxin/files"
-        name="files_path" />
+    <external-path
+        name="files_path"
+        path="./Android/data/de.honoka.android.xposed.qingxin/files" />
 </paths>

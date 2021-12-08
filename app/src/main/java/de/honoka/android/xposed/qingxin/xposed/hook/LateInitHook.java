@@ -8,17 +8,17 @@ import de.robv.android.xposed.XC_MethodHook;
  */
 public abstract class LateInitHook extends XC_MethodHook {
 
-	public void before(MethodHookParam param) {}
+    public void before(MethodHookParam param) {}
 
-	public void after(MethodHookParam param) {}
+    public void after(MethodHookParam param) {}
 
-	@Override
-	protected void beforeHookedMethod(MethodHookParam param) {
-		if(HookInit.inited) before(param);
-	}
+    @Override
+    protected void beforeHookedMethod(MethodHookParam param) {
+        if(HookInit.inited) before(param);
+    }
 
-	@Override
-	protected void afterHookedMethod(MethodHookParam param) {
-		if(HookInit.inited) after(param);
-	}
+    @Override
+    protected void afterHookedMethod(MethodHookParam param) {
+        if(HookInit.inited) after(param);
+    }
 }

@@ -15,84 +15,84 @@ import de.robv.android.xposed.XposedHelpers;
 @SuppressWarnings("unchecked")
 public class DanmakuHook extends LateInitHook {
 
-	/**
-	 * 日志中单条弹幕的最大长度
-	 */
-	private static final int BLOCK_LOG_DANMAKU_MAX_LENGTH = 30;
+    /**
+     * 日志中单条弹幕的最大长度
+     */
+    private static final int BLOCK_LOG_DANMAKU_MAX_LENGTH = 30;
 
-	/**
-	 * 最多一次在日志中显示多少条被拦截弹幕
-	 */
-	private static final int MAX_LOG_DANMAKU_COUNT = 10;
+    /**
+     * 最多一次在日志中显示多少条被拦截弹幕
+     */
+    private static final int MAX_LOG_DANMAKU_COUNT = 10;
 
-	@Override
-	public void after(MethodHookParam param) {
-		//方法返回值可能是List或DanmakuElem
-		if(param.getResult() instanceof List) {
-			handleList(param);
-		} else {
-			handleDanmakuElem(param);
-		}
-	}
+    @Override
+    public void after(MethodHookParam param) {
+        //方法返回值可能是List或DanmakuElem
+        if(param.getResult() instanceof List) {
+            handleList(param);
+        } else {
+            handleDanmakuElem(param);
+        }
+    }
 
-	/**
-	 * 处理返回值为List的方法
-	 */
-	private void handleList(MethodHookParam param) {
-		//拿到列表，并转换为可修改列表
-		List<Object> danmakuList = (List<Object>) param.getResult();
-		danmakuList = new ArrayList<>(danmakuList);
-		//弹幕拦截时不显示气泡，并且不会拦截一条就输出一条日志
-		//将会将一个List中的所有被拦截的弹幕用一条日志输出出去
-		List<String> blockList = new ArrayList<>();
-		for(Iterator<Object> iterator = danmakuList.iterator();
-		    iterator.hasNext(); ) {
-			Object danmaku = iterator.next();
-			String content;
-			if(danmaku instanceof String) {
-				content = (String) danmaku;
-			} else {
-				content = XposedHelpers.callMethod(danmaku,
-						"getContent").toString();
-			}
-			if(XposedMain.blockRuleCache.isBlockDanmakuContent(content)) {
-				iterator.remove();
-				//日志报告的弹幕内容限制字符数
-				blockList.add(TextUtils.singleLine(content,
-						BLOCK_LOG_DANMAKU_MAX_LENGTH));
-				continue;
-			}
-		}
-		//日志和修改返回值
-		if(blockList.size() > 0) {
-			StringBuilder log = new StringBuilder("拦截了" +
-					blockList.size() + "条弹幕：");
-			if(blockList.size() > MAX_LOG_DANMAKU_COUNT) {
-				for(int i = 0; i < MAX_LOG_DANMAKU_COUNT; i++) {
-					log.append("\n").append(blockList.get(i));
-				}
-				log.append("\n……\n").append("【省略了")
-						.append(blockList.size() - MAX_LOG_DANMAKU_COUNT)
-						.append("条弹幕】\n\n\n");
-			} else {
-				for(String s : blockList) {
-					log.append("\n").append(s);
-				}
-				log.append("\n\n\n");
-			}
-			Logger.blockLog(log.toString());
-		}
-		param.setResult(danmakuList);
-	}
+    /**
+     * 处理返回值为List的方法
+     */
+    private void handleList(MethodHookParam param) {
+        //拿到列表，并转换为可修改列表
+        List<Object> danmakuList = (List<Object>) param.getResult();
+        danmakuList = new ArrayList<>(danmakuList);
+        //弹幕拦截时不显示气泡，并且不会拦截一条就输出一条日志
+        //将会将一个List中的所有被拦截的弹幕用一条日志输出出去
+        List<String> blockList = new ArrayList<>();
+        for(Iterator<Object> iterator = danmakuList.iterator();
+            iterator.hasNext(); ) {
+            Object danmaku = iterator.next();
+            String content;
+            if(danmaku instanceof String) {
+                content = (String) danmaku;
+            } else {
+                content = XposedHelpers.callMethod(danmaku,
+                        "getContent").toString();
+            }
+            if(XposedMain.blockRuleCache.isBlockDanmakuContent(content)) {
+                iterator.remove();
+                //日志报告的弹幕内容限制字符数
+                blockList.add(TextUtils.singleLine(content,
+                        BLOCK_LOG_DANMAKU_MAX_LENGTH));
+                continue;
+            }
+        }
+        //日志和修改返回值
+        if(blockList.size() > 0) {
+            StringBuilder log = new StringBuilder("拦截了" +
+                    blockList.size() + "条弹幕：");
+            if(blockList.size() > MAX_LOG_DANMAKU_COUNT) {
+                for(int i = 0; i < MAX_LOG_DANMAKU_COUNT; i++) {
+                    log.append("\n").append(blockList.get(i));
+                }
+                log.append("\n……\n").append("【省略了")
+                        .append(blockList.size() - MAX_LOG_DANMAKU_COUNT)
+                        .append("条弹幕】\n\n\n");
+            } else {
+                for(String s : blockList) {
+                    log.append("\n").append(s);
+                }
+                log.append("\n\n\n");
+            }
+            Logger.blockLog(log.toString());
+        }
+        param.setResult(danmakuList);
+    }
 
-	private void handleDanmakuElem(MethodHookParam param) {
-		Object danmaku = param.getResult();
-		String content = XposedHelpers.callMethod(danmaku,
-				"getContent").toString();
-		if(XposedMain.blockRuleCache.isBlockDanmakuContent(content)) {
-			Logger.blockLog("弹幕拦截：" + TextUtils.singleLine(content,
-					BLOCK_LOG_DANMAKU_MAX_LENGTH));
-			param.setResult(null);
-		}
-	}
+    private void handleDanmakuElem(MethodHookParam param) {
+        Object danmaku = param.getResult();
+        String content = XposedHelpers.callMethod(danmaku,
+                "getContent").toString();
+        if(XposedMain.blockRuleCache.isBlockDanmakuContent(content)) {
+            Logger.blockLog("弹幕拦截：" + TextUtils.singleLine(content,
+                    BLOCK_LOG_DANMAKU_MAX_LENGTH));
+            param.setResult(null);
+        }
+    }
 }

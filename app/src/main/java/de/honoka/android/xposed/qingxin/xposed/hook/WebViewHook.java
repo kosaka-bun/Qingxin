@@ -19,35 +19,35 @@ import lombok.SneakyThrows;
 @SuppressLint("JavascriptInterface")
 public class WebViewHook extends LateInitHook {
 
-	/**
-	 * 要加载的Javascript接口类型
-	 */
-	private final List<Class<? extends BaseHandler>>
-			javascriptInterfaceClasses = Arrays.asList(
-			ColumnHandler.class
-	);
+    /**
+     * 要加载的Javascript接口类型
+     */
+    private final List<Class<? extends BaseHandler>>
+            javascriptInterfaceClasses = Arrays.asList(
+            ColumnHandler.class
+    );
 
-	@SneakyThrows
-	@Override
-	public void before(MethodHookParam param) {
-		WebView.setWebContentsDebuggingEnabled(true);
-		Logger.testLog("WebView调试已开启");
-		//Hook WebViewClient
-		WebView webView = (WebView) param.thisObject;
-		WebViewClient webViewClient = (WebViewClient) param.args[0];
-		//为webView添加js接口
-		Map<Class<? extends BaseHandler>, BaseHandler>
-				javascriptInterfaces = new HashMap<>();
-		for(Class<? extends BaseHandler> clazz :
-				javascriptInterfaceClasses) {
-			BaseHandler handler = clazz.getConstructor(WebView.class)
-					.newInstance(webView);
-			javascriptInterfaces.put(clazz, handler);
-			webView.addJavascriptInterface(handler,
-					CodeUtils.getCamelCaseName(clazz));
-		}
-		//代理即将添加的webViewClient
-		param.args[0] = new HookedWebViewClient(
-				webViewClient, javascriptInterfaces);
-	}
+    @SneakyThrows
+    @Override
+    public void before(MethodHookParam param) {
+        WebView.setWebContentsDebuggingEnabled(true);
+        Logger.testLog("WebView调试已开启");
+        //Hook WebViewClient
+        WebView webView = (WebView) param.thisObject;
+        WebViewClient webViewClient = (WebViewClient) param.args[0];
+        //为webView添加js接口
+        Map<Class<? extends BaseHandler>, BaseHandler>
+                javascriptInterfaces = new HashMap<>();
+        for(Class<? extends BaseHandler> clazz :
+                javascriptInterfaceClasses) {
+            BaseHandler handler = clazz.getConstructor(WebView.class)
+                    .newInstance(webView);
+            javascriptInterfaces.put(clazz, handler);
+            webView.addJavascriptInterface(handler,
+                    CodeUtils.getCamelCaseName(clazz));
+        }
+        //代理即将添加的webViewClient
+        param.args[0] = new HookedWebViewClient(
+                webViewClient, javascriptInterfaces);
+    }
 }

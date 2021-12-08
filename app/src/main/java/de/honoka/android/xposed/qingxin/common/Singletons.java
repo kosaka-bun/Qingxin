@@ -6,12 +6,12 @@ import com.google.gson.GsonBuilder;
 
 public class Singletons {
 
-	public static final Gson gson = new GsonBuilder()
-			.serializeNulls()
-			.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-			.create();
+    public static final Gson gson = new GsonBuilder()
+            .serializeNulls()
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .create();
 
-	public static final Gson prettyGson = new GsonBuilder()
-			.setPrettyPrinting()
-			.create();
+    public static final Gson prettyGson = new GsonBuilder()
+            .setPrettyPrinting()
+            .create();
 }

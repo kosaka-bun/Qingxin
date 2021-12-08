@@ -9,33 +9,33 @@ import android.widget.EditText;
  */
 public class NoFeedTextWatcher implements TextWatcher {
 
-	private EditText editText;
+    private EditText editText;
 
-	private int lengthBefore;
+    private int lengthBefore;
 
-	public NoFeedTextWatcher(EditText editText) {
-		this.editText = editText;
-	}
+    public NoFeedTextWatcher(EditText editText) {
+        this.editText = editText;
+    }
 
-	@Override
-	public void beforeTextChanged(CharSequence s, int start,
-	                              int count, int after) {
-		lengthBefore = s.length();
-	}
+    @Override
+    public void beforeTextChanged(CharSequence s, int start,
+                                  int count, int after) {
+        lengthBefore = s.length();
+    }
 
-	@Override
-	public void onTextChanged(CharSequence s, int start,
-	                          int before, int count) {}
+    @Override
+    public void onTextChanged(CharSequence s, int start,
+                              int before, int count) {}
 
-	@Override
-	public void afterTextChanged(Editable s) {
-		String str = s.toString();
-		//如果字符减少了，就不必验证
-		if(str.length() < lengthBefore) return;
-		if(str.contains("\n")) {
-			String replace = str.replace("\n", "");
-			editText.setText(replace);
-			editText.setSelection(replace.length());
-		}
-	}
+    @Override
+    public void afterTextChanged(Editable s) {
+        String str = s.toString();
+        //如果字符减少了，就不必验证
+        if(str.length() < lengthBefore) return;
+        if(str.contains("\n")) {
+            String replace = str.replace("\n", "");
+            editText.setText(replace);
+            editText.setSelection(replace.length());
+        }
+    }
 }

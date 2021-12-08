@@ -15,22 +15,22 @@ import lombok.SneakyThrows;
  */
 public class MainPreferenceService {
 
-	//context由ContentProvider提供
-	private final Context context;
+    //context由ContentProvider提供
+    private final Context context;
 
-	public MainPreferenceService(Context context) {
-		this.context = context;
-	}
+    public MainPreferenceService(Context context) {
+        this.context = context;
+    }
 
-	@SneakyThrows
-	public String readPreferenceJson() {
-		try(FileInputStream fileInputStream = context.openFileInput(
-				MainPreferenceFragment.MAIN_PROP_FILENAME)) {
-			return FileUtils.streamToString(fileInputStream);
-		}
-	}
+    @SneakyThrows
+    public String readPreferenceJson() {
+        try(FileInputStream fileInputStream = context.openFileInput(
+                MainPreferenceFragment.MAIN_PROP_FILENAME)) {
+            return FileUtils.streamToString(fileInputStream);
+        }
+    }
 
-	public MainPreference getPreference() {
-		return Singletons.gson.fromJson(readPreferenceJson(), MainPreference.class);
-	}
+    public MainPreference getPreference() {
+        return Singletons.gson.fromJson(readPreferenceJson(), MainPreference.class);
+    }
 }
