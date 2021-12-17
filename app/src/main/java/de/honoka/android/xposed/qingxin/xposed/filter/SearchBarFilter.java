@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 
 import java.util.function.Function;
 
+import de.honoka.android.xposed.qingxin.util.JsonUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
 
@@ -18,13 +19,8 @@ public class SearchBarFilter implements Function<String, String> {
     @Override
     public String apply(String json) {
         JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
+        if(!checkJson(jo)) throw new NullPointerException();
         JsonObject data = jo.getAsJsonObject("data");
-        if(!data.has("show") ||
-           !data.has("uri") ||
-           !data.has("goto") ||
-           !data.has("exp_str")) {
-            throw new NullPointerException();
-        }
         String show = data.get("show").getAsString();
         //屏蔽所有热搜，或者是搜索词匹配热搜拦截规则
         if(XposedMain.mainPreference.getBlockAllHotSearchWords() ||
@@ -36,5 +32,17 @@ public class SearchBarFilter implements Function<String, String> {
         }
         //返回原值
         return json;
+    }
+
+    /**
+     * 检查这个json是否是包含搜索框推荐词的json
+     */
+    private boolean checkJson(JsonObject jo) {
+        JsonObject data = jo.getAsJsonObject("data");
+        return JsonUtils.allHas(data, new String[] {
+                "show", "word", "show_front", "exp_str"
+        }) || JsonUtils.allHas(data, new String[] {
+                "show", "uri", "goto", "exp_str"
+        });
     }
 }
