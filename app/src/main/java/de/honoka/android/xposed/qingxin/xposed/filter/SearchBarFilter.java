@@ -40,7 +40,7 @@ public class SearchBarFilter implements Function<String, String> {
     private boolean checkJson(JsonObject jo) {
         JsonObject data = jo.getAsJsonObject("data");
         return JsonUtils.allHas(data, new String[] {
-                "show", "word", "show_front", "exp_str"
+                "show", "word", "exp_str"
         }) || JsonUtils.allHas(data, new String[] {
                 "show", "uri", "goto", "exp_str"
         });
