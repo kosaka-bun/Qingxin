@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 import de.honoka.android.xposed.qingxin.entity.BlockRule;
+import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.util.PatternUtils;
 import de.honoka.android.xposed.qingxin.xposed.filter.MainPageFilter;
 import lombok.Data;
@@ -91,6 +92,9 @@ public class BlockRuleCache {
         //电影
         if(cardGoto.contains("special")) return true;
         //其实一般来说，只要这个card_goto不是av，就都可以认为是推广
+        if(!cardGoto.equals("av")) {
+            Logger.testLog("可能未拦截的card_goto：" + cardGoto);
+        }
         return false;
     }
 

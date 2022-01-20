@@ -13,7 +13,7 @@ import de.robv.android.xposed.XposedHelpers;
 public class RecommendedTopicHook extends LateInitHook {
 
     private final List<String> blockTitles = Arrays.asList(
-            "推荐话题"
+            "推荐话题", "热门话题"
     );
 
     @Override

@@ -10,6 +10,7 @@ import java.util.function.Function;
 import de.honoka.android.xposed.qingxin.util.JsonUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
+import de.honoka.android.xposed.qingxin.xposed.init.HookInit;
 
 /**
  * 搜索栏推荐搜索词过滤器
@@ -23,9 +24,11 @@ public class SearchBarFilter implements Function<String, String> {
         JsonObject data = jo.getAsJsonObject("data");
         String show = data.get("show").getAsString();
         //屏蔽所有热搜，或者是搜索词匹配热搜拦截规则
-        if(XposedMain.mainPreference.getBlockAllHotSearchWords() ||
+        if(!HookInit.inited ||
+           XposedMain.mainPreference.getBlockAllHotSearchWords() ||
            blockRuleCache.isMatchRuleList(show, blockRuleCache
-                        .getHotSearchWordList())) {
+                   .getHotSearchWordList())
+        ) {
             Logger.blockLog("搜索框热搜拦截：" + show);
             Logger.toastOnBlock("拦截了搜索框热搜");
             return "";
