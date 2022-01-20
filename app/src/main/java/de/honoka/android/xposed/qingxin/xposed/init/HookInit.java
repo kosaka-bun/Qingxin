@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
+import de.honoka.android.xposed.qingxin.xposed.hook.ChronosHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.DanmakuHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.DongtaiHook;
@@ -165,7 +166,7 @@ public class HookInit {
                 "com.bilibili.lib.blconfig.internal.ABSource");
         Method abSourceInvoke = XposedUtils.findMethod(abSourceClass,
                 "invoke");
-        //XposedBridge.hookMethod(abSourceInvoke, new ChronosHook());
+        XposedBridge.hookMethod(abSourceInvoke, new ChronosHook());
     }
 
     /**

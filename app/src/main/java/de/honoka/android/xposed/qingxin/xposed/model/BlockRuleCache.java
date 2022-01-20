@@ -40,7 +40,7 @@ public class BlockRuleCache {
      * 判断某个字符串是否匹配某个规则列表里面的某条规则
      */
     public boolean isMatchRuleList(String str, List<BlockRule> blockRuleList) {
-        for(BlockRule blockRule : blockRuleList) {
+        return blockRuleList.stream().parallel().anyMatch(blockRule -> {
             switch(blockRule.getType()) {
                 //按关键词
                 case BlockRule.RuleType.KEYWORD: {
@@ -60,8 +60,8 @@ public class BlockRuleCache {
                     break;
                 }
             }
-        }
-        return false;
+            return false;
+        });
     }
 
     /**
