@@ -91,6 +91,8 @@ public class BlockRuleCache {
         if(cardGoto.contains("bangumi") || cardGoto.contains("banner")) return true;
         //电影
         if(cardGoto.contains("special")) return true;
+        //游戏
+        if(cardGoto.contains("game")) return true;
         //其实一般来说，只要这个card_goto不是av，就都可以认为是推广
         if(!cardGoto.equals("av")) {
             Logger.testLog("可能未拦截的card_goto：" + cardGoto);
