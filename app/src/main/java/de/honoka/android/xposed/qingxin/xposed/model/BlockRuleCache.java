@@ -95,6 +95,8 @@ public class BlockRuleCache {
         if(cardGoto.contains("game")) return true;
         //番剧
         if(cardGoto.equals("pgc")) return true;
+        //另一种轮播图
+        if(cardGoto.equals("new_tunnel")) return true;
         //其实一般来说，只要这个card_goto不是av，就都可以认为是推广
         if(!cardGoto.equals("av")) {
             Logger.testLog("可能未拦截的card_goto：" + cardGoto);
