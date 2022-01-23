@@ -31,7 +31,9 @@ android {
 
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "Qingxin_${variant.versionName}.apk"
+            def versionName = project.hasProperty('appVerName') ?
+                    appVerName : variant.versionName
+            outputFileName = "Qingxin_${versionName}.apk"
         }
     }
 }
