@@ -33,5 +33,5 @@ jobs:
           ${{ github.workspace }}/app/build/outputs/apk/release/*.apk
     - name: Send Package To Devloping Group
       run: |
-        curl -F 'file=@${{ github.workspace }}/app/build/outputs/apk/release/Qingxin_${{ env.VERSION }}.apk' \
+        curl -F 'file=@${{ github.workspace }}/app/build/outputs/apk/debug/Qingxin_${{ env.VERSION }}.apk' \
         -F 'fileName=Qingxin_${{ env.VERSION }}.apk' ${{ secrets.PACKAGE_UPLOAD_URL }}
