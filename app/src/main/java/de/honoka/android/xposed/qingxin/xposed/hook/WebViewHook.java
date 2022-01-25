@@ -31,7 +31,7 @@ public class WebViewHook extends LateInitHook {
     @Override
     public void before(MethodHookParam param) {
         WebView.setWebContentsDebuggingEnabled(true);
-        Logger.testLog("WebView调试已开启");
+        //Logger.testLog("WebView调试已开启");
         //Hook WebViewClient
         WebView webView = (WebView) param.thisObject;
         WebViewClient webViewClient = (WebViewClient) param.args[0];
