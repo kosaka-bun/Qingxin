@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
 import de.honoka.android.xposed.qingxin.xposed.hook.ChronosHook;
@@ -223,10 +224,8 @@ public class HookInit {
     @InitializerMethod
     @SneakyThrows
     private void initPlayerLongPressHook() {
-        Class<?> clazz = XposedMain.lpparam.classLoader.loadClass("tv." +
-                "danmaku.biliplayerimpl.gesture.GestureService$mTouchListener$1");
-        Method method = XposedUtils.findMethod(clazz, "onLongPress");
-        XposedBridge.hookMethod(method, new XC_MethodReplacement() {
+        //region replacement
+        XC_MethodReplacement replacement = new XC_MethodReplacement() {
 
             @SneakyThrows
             @Override
@@ -234,10 +233,43 @@ public class HookInit {
                 //late init
                 if(inited && !Objects.equals(XposedMain.mainPreference
                         .getDisablePlayerLongPress(), true)) {
-                    XposedBridge.invokeOriginalMethod(param.method,
+                    return XposedBridge.invokeOriginalMethod(param.method,
                             param.thisObject, param.args);
                 }
-                return null;
+                return true;
+            }
+        };
+        //endregion
+        String[] classNames = {
+                "tv.danmaku.biliplayerimpl.gesture.GestureService" +
+                        "$mTouchListener$1",
+                "tv.danmaku.biliplayerimpl.gesture.GestureService" +
+                        "$initInnerLongPressListener$1$onLongPress$1",
+                "tv.danmaku.biliplayerimpl.gesture.GestureService" +
+                        "$initInnerLongPressListener$1$onLongPressEnd$1"
+        };
+        //6.59.0以前
+        CodeUtils.doIgnoreException(() -> {
+            Class<?> clazz = XposedMain.lpparam.classLoader
+                    .loadClass(classNames[0]);
+            Method method = XposedUtils.findMethod(clazz,
+                    "onLongPress");
+            XposedBridge.hookMethod(method, replacement);
+        });
+        //6.59.0
+        CodeUtils.doIgnoreException(() -> {
+            List<Class<?>> classes = new ArrayList<>();
+            for(int i = 1; i <= 2; i++) {
+                classes.add(XposedMain.lpparam.classLoader
+                        .loadClass(classNames[i]));
+            }
+            for(Class<?> aClass : classes) {
+                for(Method method : aClass.getDeclaredMethods()) {
+                    if(method.getName().equals("invoke") &&
+                       method.getReturnType().equals(boolean.class)) {
+                        XposedBridge.hookMethod(method, replacement);
+                    }
+                }
             }
         });
     }
