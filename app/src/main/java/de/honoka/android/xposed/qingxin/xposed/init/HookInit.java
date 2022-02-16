@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
 import de.honoka.android.xposed.qingxin.xposed.hook.ChronosHook;
 import de.honoka.android.xposed.qingxin.xposed.hook.CommentHook;
@@ -47,8 +48,13 @@ public class HookInit {
     public void initAllHook() {
         for(Method method : this.getClass().getDeclaredMethods()) {
             if(method.isAnnotationPresent(InitializerMethod.class)) {
-                method.setAccessible(true);
-                method.invoke(this);
+                try {
+                    method.setAccessible(true);
+                    method.invoke(this);
+                } catch(Throwable t) {
+                    Logger.testLogForce(method.getName() + "加载失败");
+                    XposedBridge.log(t);
+                }
             }
         }
     }
