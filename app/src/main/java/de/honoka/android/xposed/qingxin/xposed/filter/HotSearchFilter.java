@@ -9,15 +9,16 @@ import com.google.gson.JsonParser;
 
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.function.Function;
 
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
+import de.honoka.android.xposed.qingxin.xposed.init.HookInit;
+import de.honoka.android.xposed.qingxin.xposed.util.JsonFilter;
 
 /**
  * 热搜过滤器
  */
-public class HotSearchFilter implements Function<String, String> {
+public class HotSearchFilter extends JsonFilter {
 
     @Override
     public String apply(String json) {
@@ -51,7 +52,8 @@ public class HotSearchFilter implements Function<String, String> {
         if(Objects.equals(type, "trending") ||
                 Objects.equals(title, "热搜")) {
             //判断是否屏蔽所有热搜
-            if(XposedMain.mainPreference.getBlockAllHotSearchWords()) {
+            if(!HookInit.inited ||
+               XposedMain.mainPreference.getBlockAllHotSearchWords()) {
                 Logger.blockLog("屏蔽所有热搜");
                 Logger.toastOnBlock("屏蔽所有热搜");
                 throw new BlockAllHotSearchException();
@@ -65,7 +67,8 @@ public class HotSearchFilter implements Function<String, String> {
                 iterator.hasNext(); ) {
                 JsonObject hotSearchJo = iterator.next().getAsJsonObject();
                 //判断某条热搜是否是按规则应当屏蔽的
-                if(blockRuleCache.isBlockHotSearch(hotSearchJo)) {
+                if(HookInit.inited &&
+                   blockRuleCache.isBlockHotSearch(hotSearchJo)) {
                     iterator.remove();
                     Logger.blockLog("热搜拦截：" + hotSearchJo
                             .get("show_name").getAsString());

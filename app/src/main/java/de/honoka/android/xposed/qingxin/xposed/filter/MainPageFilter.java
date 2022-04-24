@@ -9,15 +9,16 @@ import com.google.gson.JsonParser;
 
 import java.util.Iterator;
 import java.util.Set;
-import java.util.function.Function;
 
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
+import de.honoka.android.xposed.qingxin.xposed.init.HookInit;
+import de.honoka.android.xposed.qingxin.xposed.util.JsonFilter;
 
 /**
  * 首页推荐过滤器
  */
-public class MainPageFilter implements Function<String, String> {
+public class MainPageFilter extends JsonFilter {
 
     //region 首页推荐项左下角的图标，也就是“UP”或者粉色手机图标的图片链接
 
@@ -47,6 +48,10 @@ public class MainPageFilter implements Function<String, String> {
         for(Iterator<JsonElement> iterator = items.iterator();
             iterator.hasNext(); ) {
             JsonObject item = iterator.next().getAsJsonObject();
+            //对推荐项目进行优化
+            optimizeMainPageItem(item);
+            //判断是否进行规则匹配拦截
+            if(!HookInit.inited) continue;
             //判断是否是首页推广（创作推广、游戏、会员购、轮播图、纪录片、番剧等）
             if(blockRuleCache.isMainPageItemPublicity(item)) {
                 //是推广，判断屏蔽开关
@@ -78,7 +83,8 @@ public class MainPageFilter implements Function<String, String> {
                 //轮播图不用再进行下面的判断，它不是一般的首页推荐项
                 continue;
             }
-            //判断是否是按规则应当屏蔽的内容（一般的首页推荐项目，即除了轮播图以外的其他项目）
+            //判断是否是按规则应当屏蔽的内容（一般的首页推荐项目，即除了轮播图以外
+            //的其他项目）
             if(blockRuleCache.isBlockMainPageItem(item)) {
                 iterator.remove();
                 blockCount++;
@@ -86,8 +92,6 @@ public class MainPageFilter implements Function<String, String> {
                 continue;
             }
             //到达此处就可以认为这个推荐项目是不用拦截的
-            //对推荐项目进行优化
-            optimizeMainPageItem(item);
         }
         if(blockCount > 0)
             Logger.toastOnBlock("拦截了" + blockCount + "条首页推荐");

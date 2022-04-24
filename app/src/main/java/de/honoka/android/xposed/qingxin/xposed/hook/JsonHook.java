@@ -4,32 +4,33 @@ import com.google.gson.JsonParser;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 
 import de.honoka.android.xposed.qingxin.util.ExceptionUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.filter.HotSearchFilter;
 import de.honoka.android.xposed.qingxin.xposed.filter.MainPageFilter;
 import de.honoka.android.xposed.qingxin.xposed.filter.SearchBarFilter;
+import de.honoka.android.xposed.qingxin.xposed.init.HookInit;
+import de.honoka.android.xposed.qingxin.xposed.util.JsonFilter;
+import de.robv.android.xposed.XC_MethodHook;
 import lombok.SneakyThrows;
 
 /**
  * json提取的hook
  */
-public class JsonHook extends LateInitHook {
+public class JsonHook extends XC_MethodHook {
 
     /**
      * 处理json时需要使用的过滤器
      */
-    List<Function<String, String>> filters = Arrays.asList(
+    List<JsonFilter> filters = Arrays.asList(
             new MainPageFilter(),
             new HotSearchFilter(),
             new SearchBarFilter()
     );
 
     @SneakyThrows
-    @Override
-    public void before(MethodHookParam param) {
+    public void beforeHookedMethod(MethodHookParam param) {
         //根据参数类型获得json字符串
         String jsonStr;
         if(param.args[0] instanceof String) {
@@ -63,9 +64,11 @@ public class JsonHook extends LateInitHook {
         //构建操作列表，依次操作，一个成功即返回过滤后的值
         //由于不能确定json属于哪种数据，所以将所有过滤规则都试一遍，取有效的那一个
         //所以过滤器一定不能在一般情况下抛出异常
-        for(Function<String, String> filter : filters) {
+        for(JsonFilter filter : filters) {
             try {
-                return filter.apply(jsonStr);
+                if(!filter.isLateInit() || HookInit.inited) {
+                    return filter.apply(jsonStr);
+                }
             } catch(NullPointerException | ClassCastException ignore) {
                 //ignore
                 //Logger.testLog(ExceptionUtils.transfer(ignore));

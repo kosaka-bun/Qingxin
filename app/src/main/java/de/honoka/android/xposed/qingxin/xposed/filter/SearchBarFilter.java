@@ -5,17 +5,16 @@ import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import java.util.function.Function;
-
 import de.honoka.android.xposed.qingxin.util.JsonUtils;
 import de.honoka.android.xposed.qingxin.util.Logger;
 import de.honoka.android.xposed.qingxin.xposed.XposedMain;
 import de.honoka.android.xposed.qingxin.xposed.init.HookInit;
+import de.honoka.android.xposed.qingxin.xposed.util.JsonFilter;
 
 /**
  * 搜索栏推荐搜索词过滤器
  */
-public class SearchBarFilter implements Function<String, String> {
+public class SearchBarFilter extends JsonFilter {
 
     @Override
     public String apply(String json) {
