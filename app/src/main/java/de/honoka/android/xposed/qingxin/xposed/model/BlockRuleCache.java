@@ -88,7 +88,8 @@ public class BlockRuleCache {
         //明确的广告
         if(item.has("ad_info")) return true;
         //轮播图，或番剧、纪录片
-        if(cardGoto.contains("bangumi") || cardGoto.contains("banner")) return true;
+        if(cardGoto.contains("bangumi") || cardGoto.contains("banner"))
+            return true;
         //电影
         if(cardGoto.contains("special")) return true;
         //游戏

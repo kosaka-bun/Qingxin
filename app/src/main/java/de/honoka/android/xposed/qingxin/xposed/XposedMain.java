@@ -129,6 +129,7 @@ public class XposedMain implements IXposedHookLoadPackage {
             try {
                 init();
                 HookInit.inited = true;
+                //noinspection ConstantConditions
                 if(mainPreference.getTestMode()) {
                     Logger.testLog("清心模块加载成功");
                     Logger.toast("清心模块加载成功", Toast.LENGTH_SHORT);

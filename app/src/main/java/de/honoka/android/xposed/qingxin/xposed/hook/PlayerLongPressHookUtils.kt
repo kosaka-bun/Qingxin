@@ -44,8 +44,9 @@ object PlayerLongPressHookUtils {
             for(aClass in classNameListToClassList(*classNameList)) {
                 for(method in aClass.declaredMethods) {
                     if(method.name != "invoke") continue
-                    if(method.returnType == Boolean::class.java ||
-                       method.returnType == Boolean::class.javaPrimitiveType) {
+                    if(method.returnType == java.lang.Boolean::class.java ||
+                       method.returnType == java.lang.Boolean::class
+                                .javaPrimitiveType) {
                         XposedBridge.hookMethod(method, replacement)
                     }
                 }

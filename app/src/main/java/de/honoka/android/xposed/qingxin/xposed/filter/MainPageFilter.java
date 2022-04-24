@@ -40,7 +40,7 @@ public class MainPageFilter extends JsonFilter {
         //条目必须包含card_type和card_goto
         JsonObject testItem = items.get(0).getAsJsonObject();
         if(!testItem.has("card_type") ||
-                !testItem.has("card_goto"))
+           !testItem.has("card_goto"))
             throw new NullPointerException();
         //endregion
         //过滤、计数
@@ -51,10 +51,20 @@ public class MainPageFilter extends JsonFilter {
             //对推荐项目进行优化
             optimizeMainPageItem(item);
             //判断是否进行规则匹配拦截
-            if(!HookInit.inited) continue;
+            if(!HookInit.inited) {
+                //未加载配置，无条件拦截轮播图
+                if(item.get("card_goto").getAsString().equals("banner")) {
+                    iterator.remove();
+                    blockCount++;
+                    Logger.blockLog("首页推荐拦截：" +
+                            getMainPageItemTitle(item));
+                    continue;
+                }
+            }
             //判断是否是首页推广（创作推广、游戏、会员购、轮播图、纪录片、番剧等）
             if(blockRuleCache.isMainPageItemPublicity(item)) {
                 //是推广，判断屏蔽开关
+                //noinspection ConstantConditions
                 if(XposedMain.mainPreference.getBlockAllMainPagePublicity()) {
                     iterator.remove();
                     blockCount++;
@@ -95,12 +105,13 @@ public class MainPageFilter extends JsonFilter {
         }
         if(blockCount > 0)
             Logger.toastOnBlock("拦截了" + blockCount + "条首页推荐");
-        String handledJson = jo.toString();
+        //String handledJson = jo.toString();
         //输出测试信息
         //Logger.testLog("输出json");
         //Logger.testLog(handledJson);
         //Logger.testLog("输出json完成");
-        return handledJson;
+        //return handledJson;
+        return jo.toString();
     }
 
     /**
@@ -153,9 +164,13 @@ public class MainPageFilter extends JsonFilter {
      * 对首页推荐项进行优化的逻辑
      */
     private void optimizeMainPageItem(JsonObject item) {
+        JsonElement gotoItem = item.get("goto");
+        if(gotoItem == null) return;
         //判断是否是竖屏视频
-        if(item.get("goto").getAsString().equals("vertical_av")) {
-            if(XposedMain.mainPreference.getConvertAllVerticalAv()) {
+        if(gotoItem.getAsString().equals("vertical_av")) {
+            //noinspection ConstantConditions
+            if(!HookInit.inited ||
+               XposedMain.mainPreference.getConvertAllVerticalAv()) {
                 convertVerticalVideoItem(item);
                 //日志
                 Logger.blockLog("还原竖屏视频：" + getMainPageItemTitle(item));
