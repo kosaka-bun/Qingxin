@@ -1,7 +1,7 @@
 # 清心
 [![License](https://img.shields.io/github/license/kosaka-bun/Qingxin?label=License&color=brightgreen)](https://github.com/kosaka-bun/Qingxin/blob/master/LICENSE)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-brightgreen?logo=Android)
-![bilibili](https://img.shields.io/badge/bilibili-6.43.0%2B-brightgreen?logo=Bilibili)
+![bilibili](https://img.shields.io/badge/bilibili-6.43.0%2B-brightgreen?logo=Bilibili)<br />
 ![GitHub Stars](https://img.shields.io/github/stars/kosaka-bun/Qingxin?label=Stars&logo=GitHub)
 ![Forks](https://img.shields.io/github/forks/kosaka-bun/Qingxin?label=Forks&logo=GitHub)
 [![Release](https://img.shields.io/github/release/kosaka-bun/Qingxin.svg?label=Release&logo=GitHub)](https://github.com/kosaka-bun/Qingxin/releases)
@@ -54,3 +54,9 @@
 <img alt="日志配置" src="./docs/image/log_prefs.jpg" width="60%" />
 
 您可以在清心首页的配置中启用“输出拦截日志”或“拦截时发出气泡信息”，来验证添加的规则是否生效。
+
+## 鸣谢
+[IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) 是一个在各个方面都最大程度地提高开发人员的生产力的 IDE，适用于 JVM 平台语言。
+
+特别感谢 [JetBrains](https://www.jetbrains.com/?from=Qingxin) 为开源项目提供免费的 [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=Qingxin) 等 IDE 的授权。
+[<img src=".github/jetbrains-variant-3.png" width="200"/>](https://www.jetbrains.com/?from=Qingxin)
