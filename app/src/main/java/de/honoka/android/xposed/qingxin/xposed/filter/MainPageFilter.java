@@ -5,7 +5,6 @@ import static de.honoka.android.xposed.qingxin.xposed.XposedMain.blockRuleCache;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -28,21 +27,27 @@ public class MainPageFilter extends JsonFilter {
 
     //endregion
 
+    /**
+     * 前置判断，判断json是不是首页推荐数据
+     */
     @Override
-    public String apply(String json) {
-        //根据字符串提取出来的主对象，所有修改操作都基于它来完成
-        JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
-        JsonArray items = jo.getAsJsonObject("data")
+    public boolean isJsonWillBeFiltered(JsonElement je) {
+        JsonArray items = je.getAsJsonObject()
+                .getAsJsonObject("data")
                 .getAsJsonArray("items");
-        //region 前置判断，判断json是不是首页推荐数据
         //首页推荐视频条目数不可能为0
-        if(items.size() <= 0) throw new NullPointerException();
+        if(items.size() <= 0) return false;
         //条目必须包含card_type和card_goto
         JsonObject testItem = items.get(0).getAsJsonObject();
-        if(!testItem.has("card_type") ||
-           !testItem.has("card_goto"))
-            throw new NullPointerException();
-        //endregion
+        return testItem.has("card_type") &&
+                testItem.has("card_goto");
+    }
+
+    @Override
+    public String doFilter(JsonElement je) {
+        JsonArray items = je.getAsJsonObject()
+                .getAsJsonObject("data")
+                .getAsJsonArray("items");
         //过滤、计数
         int blockCount = 0;
         for(Iterator<JsonElement> iterator = items.iterator();
@@ -87,7 +92,6 @@ public class MainPageFilter extends JsonFilter {
                         blockCount++;
                         Logger.blockLog("轮播图推荐拦截：" +
                                 getBannerItemTitle(bannerItem));
-                        continue;
                     }
                 }
                 //轮播图不用再进行下面的判断，它不是一般的首页推荐项
@@ -99,19 +103,12 @@ public class MainPageFilter extends JsonFilter {
                 iterator.remove();
                 blockCount++;
                 Logger.blockLog("首页推荐拦截【规则】：" + getMainPageItemTitle(item));
-                continue;
             }
             //到达此处就可以认为这个推荐项目是不用拦截的
         }
         if(blockCount > 0)
             Logger.toastOnBlock("拦截了" + blockCount + "条首页推荐");
-        //String handledJson = jo.toString();
-        //输出测试信息
-        //Logger.testLog("输出json");
-        //Logger.testLog(handledJson);
-        //Logger.testLog("输出json完成");
-        //return handledJson;
-        return jo.toString();
+        return je.toString();
     }
 
     /**
@@ -174,7 +171,6 @@ public class MainPageFilter extends JsonFilter {
                 convertVerticalVideoItem(item);
                 //日志
                 Logger.blockLog("还原竖屏视频：" + getMainPageItemTitle(item));
-                //Logger.testLog(Singletons.prettyGson.toJson(item));
             }
         }
         //缓存左下角图片链接
@@ -196,11 +192,9 @@ public class MainPageFilter extends JsonFilter {
                 "bilibili://video");
         item.remove("uri");
         item.addProperty("uri", uri);
-        //移除两个多余的键
-        //item.remove("official_icon");
-        //item.remove("ff_cover");
         //region 替换卡片左下角的手机图标
         //（这东西让我误以为还原没有成功，找了大半天普通视频和竖屏视频的区别）
+        if(!item.has("goto_icon")) return;
         JsonObject gotoIcon = item.getAsJsonObject("goto_icon");
         gotoIcon.remove("icon_url");
         gotoIcon.remove("icon_night_url");

@@ -1,13 +1,17 @@
 package de.honoka.android.xposed.qingxin.xposed.util;
 
-import java.util.function.Function;
+import com.google.gson.JsonElement;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class JsonFilter implements Function<String, String> {
+public abstract class JsonFilter {
 
     private boolean lateInit;
+
+    public abstract boolean isJsonWillBeFiltered(JsonElement je);
+
+    public abstract String doFilter(JsonElement je);
 }

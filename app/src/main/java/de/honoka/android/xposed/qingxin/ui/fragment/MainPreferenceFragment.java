@@ -1,4 +1,4 @@
-package de.honoka.android.xposed.qingxin.fragment;
+package de.honoka.android.xposed.qingxin.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -37,12 +37,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import de.honoka.android.xposed.qingxin.R;
-import de.honoka.android.xposed.qingxin.activity.AddRuleActivity;
-import de.honoka.android.xposed.qingxin.activity.MainActivity;
 import de.honoka.android.xposed.qingxin.common.Constant;
 import de.honoka.android.xposed.qingxin.common.Singletons;
 import de.honoka.android.xposed.qingxin.dao.BlockRuleDao;
 import de.honoka.android.xposed.qingxin.entity.BlockRule;
+import de.honoka.android.xposed.qingxin.ui.activity.AddRuleActivity;
+import de.honoka.android.xposed.qingxin.ui.activity.MainActivity;
 import de.honoka.android.xposed.qingxin.util.Base64Utils;
 import de.honoka.android.xposed.qingxin.util.CodeUtils;
 import de.honoka.android.xposed.qingxin.util.FilePermissionUtils;

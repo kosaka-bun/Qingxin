@@ -1,5 +1,6 @@
 package de.honoka.android.xposed.qingxin.xposed.hook;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import java.util.Arrays;
@@ -12,6 +13,7 @@ import de.honoka.android.xposed.qingxin.xposed.filter.MainPageFilter;
 import de.honoka.android.xposed.qingxin.xposed.filter.SearchBarFilter;
 import de.honoka.android.xposed.qingxin.xposed.init.HookInit;
 import de.honoka.android.xposed.qingxin.xposed.util.JsonFilter;
+import de.honoka.android.xposed.qingxin.xposed.util.JsonNotWillBeFilteredException;
 import de.robv.android.xposed.XC_MethodHook;
 import lombok.SneakyThrows;
 
@@ -67,11 +69,16 @@ public class JsonHook extends XC_MethodHook {
         for(JsonFilter filter : filters) {
             try {
                 if(!filter.isLateInit() || HookInit.inited) {
-                    return filter.apply(jsonStr);
+                    JsonElement je = JsonParser.parseString(jsonStr);
+                    if(!filter.isJsonWillBeFiltered(je))
+                        throw new JsonNotWillBeFilteredException();
+                    return filter.doFilter(je);
                 }
-            } catch(NullPointerException | ClassCastException ignore) {
+            } catch(JsonNotWillBeFilteredException jnwbfe) {
                 //ignore
                 //Logger.testLog(ExceptionUtils.transfer(ignore));
+            } catch(NullPointerException | ClassCastException npeOrCce) {
+                //ignore
             } catch(Throwable t) {
                 Logger.testLog(ExceptionUtils.transfer(t));
             }

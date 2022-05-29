@@ -39,6 +39,18 @@ public class XposedUtils {
         });
     }
 
+    public static void hookBefore(Member member,
+            Consumer<XC_MethodHook.MethodHookParam> hooker) {
+        XposedBridge.hookMethod(member, new XC_MethodHook() {
+
+            @SneakyThrows
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) {
+                hooker.accept(param);
+            }
+        });
+    }
+
     public static void hookAfter(String className, String methodName,
             Consumer<XC_MethodHook.MethodHookParam> hooker) {
         hookMethod(className, methodName, new XC_MethodHook() {

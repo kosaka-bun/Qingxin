@@ -1,4 +1,4 @@
-package de.honoka.android.xposed.qingxin.activity;
+package de.honoka.android.xposed.qingxin.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

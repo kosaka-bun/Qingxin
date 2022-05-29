@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 
 import de.honoka.android.xposed.qingxin.common.Singletons;
 import de.honoka.android.xposed.qingxin.entity.MainPreference;
-import de.honoka.android.xposed.qingxin.fragment.MainPreferenceFragment;
+import de.honoka.android.xposed.qingxin.ui.fragment.MainPreferenceFragment;
 import de.honoka.android.xposed.qingxin.util.FileUtils;
 import lombok.SneakyThrows;
 

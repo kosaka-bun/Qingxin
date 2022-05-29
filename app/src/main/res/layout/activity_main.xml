@@ -3,11 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.MainActivity">
+    tools:context=".ui.activity.MainActivity">
 
     <fragment
         android:id="@+id/main_preference_fragment"
-        android:name="de.honoka.android.xposed.qingxin.fragment.MainPreferenceFragment"
+        android:name="de.honoka.android.xposed.qingxin.ui.fragment.MainPreferenceFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
