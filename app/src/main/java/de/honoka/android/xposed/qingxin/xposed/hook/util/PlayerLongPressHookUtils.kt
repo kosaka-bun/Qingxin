@@ -1,4 +1,4 @@
-package de.honoka.android.xposed.qingxin.xposed.hook
+package de.honoka.android.xposed.qingxin.xposed.hook.util
 
 import de.honoka.android.xposed.qingxin.util.CodeUtils
 import de.honoka.android.xposed.qingxin.xposed.XposedMain

@@ -3,6 +3,7 @@
 buildscript {
     ext.kotlin_version = '1.3.61'
     repositories {
+        mavenLocal()
         mavenCentral()
         google()
 
@@ -22,7 +23,7 @@ allprojects {
         mavenCentral()
         google()
 
-        maven { url "https://api.xposed.info/" }
+        maven { url 'https://api.xposed.info/' }
     }
 }
 
