@@ -25,7 +25,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import lombok.SneakyThrows;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings({ "ConstantConditions", "unused" })
 public class AllInitializers {
 
     /**
